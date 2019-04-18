@@ -1,6 +1,6 @@
 import * as express from 'express'
 import * as cors from 'cors';
-import * as logger from 'morgan';
+import * as logger from 'morgan';jSXAttribute
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
 import { IndexRoute } from './routes/indexRouter';
@@ -13,7 +13,7 @@ import { ServiceRoute } from './routes/serviceRoute';
 import { DurationRoute } from './routes/durationRouter';
 import { ClientInfoRoute } from './routes/clientInfoRouter';
 import { MailRoute } from './routes/mailRouter';
-import * as ejs from 'ejs';
+import { jSXAttribute } from 'babel-types';
 
 export class App {
   private server: express.Application;
@@ -21,9 +21,6 @@ export class App {
   constructor() {
     process.title = "tyler-cmt-api";
     this.server = express();
-    this.server.engine('html', ejs.renderFile);
-    this.server.set('view engine', 'html');
-    this.server.set('view engine', 'ejs');
     this.configureMiddleware();
     this.routes();
   }
