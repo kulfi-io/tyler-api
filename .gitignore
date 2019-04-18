@@ -38,6 +38,7 @@ jspm_packages/
 src/config
 build/dist
 build/dist-dev
+package-lock.json
 
 
 # TypeScript v1 declaration files
