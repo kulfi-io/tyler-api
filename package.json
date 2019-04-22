@@ -7,7 +7,7 @@
     "build-dev": "webpack --progress --config build/dev.config.js",
     "build-prod": "webpack --progress --config build/prod.config.js",
     "start": "node ./build/dist/tyler.api.bundle.js",
-    "stop": "killall tyler-cmt-api",
+    "stop": "killall tyler-api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kulfi.io ",

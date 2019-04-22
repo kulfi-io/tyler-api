@@ -17,7 +17,7 @@ export class App {
   private server: express.Application;
   
   constructor() {
-    process.title = "tyler-cmt-api";
+    process.title = "tyler-api";
     this.server = express();
     this.configureMiddleware();
     this.routes();
