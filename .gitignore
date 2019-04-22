@@ -36,9 +36,9 @@ build/Release
 node_modules/
 jspm_packages/
 src/config
-build/dist
-build/dist-dev
-package-lock.json
+build/dist/
+build/dist-dev/
+
 
 
 # TypeScript v1 declaration files

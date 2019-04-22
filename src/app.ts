@@ -1,6 +1,6 @@
 import * as express from 'express'
 import * as cors from 'cors';
-import * as logger from 'morgan';jSXAttribute
+import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
 import { IndexRoute } from './routes/indexRouter';
@@ -12,8 +12,6 @@ import { ValidClientRoute } from './routes/validClientRouter';
 import { ServiceRoute } from './routes/serviceRoute';
 import { DurationRoute } from './routes/durationRouter';
 import { ClientInfoRoute } from './routes/clientInfoRouter';
-import { MailRoute } from './routes/mailRouter';
-import { jSXAttribute } from 'babel-types';
 
 export class App {
   private server: express.Application;
@@ -40,7 +38,6 @@ export class App {
     const router = express.Router();
 
     ClientInfoRoute.map(router);
-    MailRoute.map(router);
     IndexRoute.map(router);
     LoginRoute.map(router);
     ApiUserRoute.map(router);
