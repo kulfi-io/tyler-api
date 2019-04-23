@@ -34,7 +34,7 @@ export class MailController {
         });
 
         _email.send({
-            template: 'templates/greetings',
+            template: 'greetings',
             message: {
                 to: 'ashish@ashishc.io',
             },
