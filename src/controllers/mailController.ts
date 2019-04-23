@@ -20,10 +20,34 @@ export class MailController {
     }
 
     register = (req: Request, res: Response) => {
+        const _email = new Email({
+            message: {
+                from: mailConfig.account.user
+            },
+            send: mailConfig.account.send,
+            preview: mailConfig.account.preview,
+            transport: this.transporter,
+        });
+
+        _email.send({
+            template: 'register',
+            message: {
+                to: 'ashish@ashishc.io',
+            },
+            locals: {
+                name: 'tester'
+            }
+        })
+        .then((content: {}) => {
+            res.status(200).send({message: content})
+        })
+        .catch((err: Error) => {
+            res.status(400).send({message: err.message});
+        });
 
     }
 
-    sendMail = (req: Request, res: Response) => {
+    test = (req: Request, res: Response) => {
         const _email = new Email({
             message: {
                 from: mailConfig.account.user

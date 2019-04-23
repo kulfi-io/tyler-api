@@ -9,6 +9,8 @@ export class MailRoute extends BaseRoute {
     }
 
     public static map(router: Router) {
-        router.post('/mail', controller.sendMail);
+        router.post('/mail/test', controller.test);
+        router.post('/mail/register', controller.register);
     }
+
 }
