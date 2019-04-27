@@ -1,0 +1,130 @@
+html, body {
+    background: #383333;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+.primary {
+    margin: 0 auto;
+    width: 80%;
+}
+.header {
+    background: #0B2747;
+    width: 100%;
+    height: 120px;
+    padding: 2%
+
+}
+
+.header .head-container {
+    color: #fff;
+    font-family: Helvetica;
+    padding: 1%;
+}
+
+.header .company {
+    font-size: 30px;
+    width: 100%;
+}
+
+.header .objective {
+    padding-top: 1%;
+    font-size: 16px;
+    width: 100%;
+}
+
+.header .title {
+    padding-top: 20px;
+    font-size: 15px;
+    width: 100%;
+}
+
+@media screen and (max-width: 992px) {
+    .header .company{
+        font-size:  20px;
+    }
+}
+.content {
+    height: 600px;
+    background: #fff;
+    width: 100%;
+    padding: 2%;
+    font-family: Helvetica;
+    color: #000000;
+}
+
+.content .salutation {
+    font-size:  13px;
+    /* width: 85%; */
+    text-align: left;
+}
+
+.content .content-item {
+    font-size:  13px;
+    /* width: 85%; */
+    line-height: 1.4;
+    text-align: left;
+
+}
+
+.content .validiction {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.content .content-item .btn{
+    padding: 2%;
+    background: #0B2747;
+    border-radius: 0;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    width: 20%;
+    cursor: pointer;
+}
+
+.content .content-item .btn:hover{
+    background: #dddddd;
+}
+
+@media screen and (max-width: 480px) {
+    .content .content-item {
+        font-size:  10px;
+        width: 60%;
+    }
+
+    
+}
+
+.footer {
+    width: 100%;
+}
+
+.footer .foot-container {
+    color: #D8D8D8;
+    font-family: Helvetica;
+    padding: 2%;
+}
+
+.footer .company-info {
+    font-size: 12px;
+    width: 100%;
+}
+
+.footer .contact {
+    font-size: 1px;
+    font-size: 11px;
+    padding-top: 1%;
+    width:100%;
+}
+
+.footer .need-help {
+    font-size: 11px;
+    padding-top: 1%;
+    padding-right: 2px;
+    font-weight: bold;
+}
+
+
+

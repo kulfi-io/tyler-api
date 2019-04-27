@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import * as Email from 'email-templates';
+import * as path from 'path'
 import * as mailer from 'nodemailer';
 import * as mailConfig from '../config/mail.config.json'
 const Mail = require('mail')
 
 export class MailController {
     private transporter: typeof Mail;
-    
     
     constructor() {
         
@@ -27,6 +27,7 @@ export class MailController {
             send: mailConfig.account.send,
             preview: mailConfig.account.preview,
             transport: this.transporter,
+           
         });
 
         _email.send({

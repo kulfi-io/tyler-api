@@ -6,7 +6,33 @@ html
       meta(name="viewport", content="width=device-width")
       meta(http-equiv="X-UA-Compatible", content="IE=edge")
       meta(name="x-apple-disable-message-reformatting")
-      link(rel="stylesheet", href="style.css", data-inline)
+      link(rel="stylesheet", href="/dist-dev/css/style.css", data-inline)
   body
-    p Hi #{name},
-p Thank you for registering with Tyler-CMT.
+  div.primary 
+    div.header
+      center
+        div.head-container
+          div.company Tyler Chamberlain, CMT
+          div.objective Massage that integrates, soothes and heals
+          div.title Registration confirmation
+    div.content
+      center
+        div.salutation 
+          p Dear Ashish Chatterjee,
+        div.content-item 
+          p You have selected ashish@ashishc.io as your new identifier. To verify this email address belongs to you, click the link below and then sign in using your identifier and password.
+        div.content-item
+          button(type='button' class='btn') Verify
+        div.content-item 
+          p(style='font-weight: bold;') Why you received this email?
+          p We require verification whenever an email address is selected as an identifier. Your identifier cannot be used to access our site until you verify it.
+          p If you didn't make these changes or you believe an unauthorized person has accessed your account, you should change your password as soon as possible from your Tyler CMT account page at https://tyler.kulfi.io.
+        div.content-item(class='validiction')
+          p Tyler CMT support
+    div.footer
+      center
+        div.foot-container
+          div.company-info Tyler Chamberlain, CMT, 999 Hyde Street, San Francisco, CA
+          div.contact
+            span.need-help Need help?
+            span Contact us at tylerccmt.gmail.com or 415.555.1212
