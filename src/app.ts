@@ -7,7 +7,7 @@ import { IndexRoute } from './routes/indexRouter';
 import { ValidateRequest } from './middleware/validateRequest';
 import { LoginRoute } from './routes/loginRouter';
 import { UserTypeRoute } from './routes/userTypeRouter';
-import { ApiUserRoute } from './routes/apiUserRouter';
+import { UserRoute } from './routes/userRouter';
 import { ValidClientRoute } from './routes/validClientRouter';
 import { ServiceRoute } from './routes/serviceRoute';
 import { DurationRoute } from './routes/durationRouter';
@@ -42,7 +42,7 @@ export class App {
     IndexRoute.map(router);
     MailRoute.map(router);
     LoginRoute.map(router);
-    ApiUserRoute.map(router);
+    UserRoute.map(router);
     UserTypeRoute.map(router);
     ValidClientRoute.map(router);
     ServiceRoute.map(router);

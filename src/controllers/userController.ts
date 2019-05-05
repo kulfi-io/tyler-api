@@ -3,11 +3,11 @@ import * as uuid from "uuid";
 import Schema from "../db/apiUserSchema";
 import UserTypeSchema from "../db/userTypeSchema";
 import { IApiUser } from "../db/interfaces";
-import User from "../models/apiUser";
+import User from "../models/user";
 import UserType from "../models/userType";
 import { BaseController } from "./baseController";
 
-export class ApiUserController extends BaseController {
+export class UserController extends BaseController {
   private username:string;
   private email:string;
   private firstName:string;
@@ -260,4 +260,4 @@ export class ApiUserController extends BaseController {
   };
 }
 
-export default new ApiUserController();
+export default new UserController();

@@ -1,6 +1,6 @@
 import UserType from "./userType";
 
-export default class ApiUser {
+export default class User {
   id?: string;
   username?: string;
   email?: string;

@@ -9,11 +9,13 @@ import { BaseController } from "./baseController";
 export class loginController extends BaseController{
   private username:string;
   private password:string;
+  private token:string;
 
   constructor() {
     super()
     this.username='';
     this.password='';
+    this.token='';
   }
 
   login = (req: Request, res: Response) => {
@@ -97,12 +99,16 @@ export class loginController extends BaseController{
 
   validateEmailToken = (req: Request, res: Response) => {
     try {
-      if (!req.params.token) {
+      if (!req.body.username || !req.body.password || !req.params.token) {
         return res.status(400).send();
       }
 
+      this.token = this.decryptData(req.body.token);
+      this.username = this.decryptData(req.body.username);
+      this.password = this.decryptData(req.body.password)
+
       const _decoded = <IDecoded>(
-        jwt.verify(req.params.token, configInfo.secret)
+        jwt.verify(this.token, configInfo.secret)
       );
 
       if (!_decoded) {
@@ -112,15 +118,21 @@ export class loginController extends BaseController{
           Schema.findByIdAndUpdate(
             _decoded.id,
             { tokenValidated: true },
-            (err: Error) => {
+            (err: Error, result: IApiUser | null ) => {
               if (err) return res.status(400).send(err.message);
 
-              return res.status(200).send();
+              if(result) {
+                if(result.username === this.username
+                  && result.validPassword(this.password)){
+                    return res.status(200).send('thank you for verifying you id');
+                  }
+              }
+              return res.status(400).send('either username, password or token in incorrect!');
             }
           );
         }
 
-        return res.status(400).send({ message: "Token expired" });
+        return res.status(401).send({ message: "Token expired" });
       }
     } catch (err) {
       return res.status(400).send({ message: err.message });
