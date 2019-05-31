@@ -6,6 +6,7 @@ import { IApiUser } from "../db/interfaces";
 import User from "../models/user";
 import UserType from "../models/userType";
 import { BaseController } from "./baseController";
+import Verify from "../models/verify";
 
 export class UserController extends BaseController {
   private username:string;
@@ -14,6 +15,7 @@ export class UserController extends BaseController {
   private lastName:string;
   private password:string;
   private type:string;
+  private verifyModel: Verify
 
   constructor() {
     super();
@@ -24,8 +26,10 @@ export class UserController extends BaseController {
     this.lastName='';
     this.password='';
     this.type='';
+    this.verifyModel = new Verify();
+    
+    
   }
-
 
   private mapItems(model: {}[]): User[] {
     let _data = [];
@@ -115,9 +119,8 @@ export class UserController extends BaseController {
       return res.status(400).send({ message: err.message });
     }
   };
-
+  
   create = (req: Request, res: Response) => {
-    try {
 
       if (
         !req.body ||
@@ -125,35 +128,30 @@ export class UserController extends BaseController {
         !req.body.firstName ||
         !req.body.lastName ||
         !req.body.username ||
-        !req.body.password
+        !req.body.password ||
+        !req.body.type
       ) {
         return res.status(400).send({ message: "missing data item(s)" });
       }
 
-      let _targetType='';
-
-      this.email = req.body.email;
-      this.firstName = req.body.firstName;
-      this.lastName = req.body.lastName;
-      this.username = req.body.username;
-      this.password = req.body.password;
-      this.type = req.body.type;
-
-      if(this.email == ''){
-        return res.status(400).send({message: 'failed to decrypt'});
-      }
+      this.email = this.decryptData(req.body.email);
+      this.firstName = this.decryptData(req.body.firstName);
+      this.lastName = this.decryptData(req.body.lastName);
+      this.username = this.decryptData(req.body.username);
+      this.password = this.decryptData(req.body.password);
+      this.type = this.decryptData(req.body.type);
 
       UserTypeSchema.findOne({ active: true, 'display': this.type }, (err, data) => {
 
         if (err) return res.status(400).send({ message: err.message });
-        
-        if(data) _targetType = data._id;
-        
+              
+        if(data) {
+          this.type = data._id
+        }
+
         return;
-
-      }).then(() => {
-
-        if(_targetType) {
+      })
+      .then(() => {
 
           const _model = new Schema({
             id: uuid(),
@@ -161,15 +159,15 @@ export class UserController extends BaseController {
             firstName: this.firstName,
             lastName: this.lastName,
             username: this.username,
-            userTypeId: _targetType,
+            userTypeId: this.type
           });
-
+          
           if (!_model.setPassword(this.password)) {
             return res
               .status(400)
               .send({ message: "password does not match criteria" });
           }
-
+          
           if (!_model.generateValidationToken()) {
             return res
               .status(400)
@@ -178,21 +176,20 @@ export class UserController extends BaseController {
 
           Schema.create(_model, (err: Error, data: IApiUser) => {
             if (err) return res.status(400).send({ message: err.message });
-            return res.status(201).send({message: 'created'});
+            
+            this.verifyModel.email = this.email;
+            this.verifyModel.username = this.username;
+            this.verifyModel.token = data.validationToken;
+
+            return res.status(201).send({message: this.verifyModel});
+
           });
-
-        }
-
-        return;
-
+          
+          return;
       });
-
-      return;
      
-    } catch (err) {
-      return res.status(400).send({ message: err.message });
-    }
-  };
+      return;
+  }
 
   update = (req: Request, res: Response) => {
     try {
