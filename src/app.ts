@@ -12,7 +12,6 @@ import { ValidClientRoute } from './routes/validClientRouter';
 import { ServiceRoute } from './routes/serviceRoute';
 import { DurationRoute } from './routes/durationRouter';
 import { ClientInfoRoute } from './routes/clientInfoRouter';
-import { MailRoute } from './routes/mailRouter';
 
 export class App {
   private server: express.Application;
@@ -40,7 +39,6 @@ export class App {
 
     ClientInfoRoute.map(router);
     IndexRoute.map(router);
-    MailRoute.map(router);
     LoginRoute.map(router);
     UserRoute.map(router);
     UserTypeRoute.map(router);
