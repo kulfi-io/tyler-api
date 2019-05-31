@@ -9,8 +9,7 @@ export class LoginRoute extends BaseRoute {
     }
 
     public static map(router: Router) {
-        router.post('/v1/verify', controller.validateEmailToken);
         router.post('/v1/login', controller.login);
-        router.post('/v1/resetpass', controller.resetPassword);
+        router.post('/v1/reset', controller.resetPassword);
     }
 }

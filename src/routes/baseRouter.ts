@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response} from 'express';
+import {Request, Response} from 'express';
 
 export class BaseRoute {
     protected title: string;
@@ -6,8 +6,6 @@ export class BaseRoute {
     constructor() {
         this.title = "Welcome to Tyler-CMT Api";
     }
-
-   
 
     public responseData(req: Request, res: Response, data?: Object) {
         res.locals.BASE_URL = "/";
