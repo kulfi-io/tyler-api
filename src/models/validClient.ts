@@ -8,5 +8,5 @@ export default class ValidClient {
     phoneNumber?: number;
     token?: string;
     active?: boolean;
-  }
+}
   
