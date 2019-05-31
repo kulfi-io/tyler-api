@@ -10,19 +10,19 @@ module.exports = merge(baseConf, {
         filename: 'tyler.api.bundle.js',
         path: path.resolve(__dirname, 'dist-dev')
     },
-    plugins: [
-        new copyWebpackPlugin([
-            {
-                from: path.resolve('./emails/assets/css/*.css'),
-                to: path.resolve(__dirname, 'dist-dev/css/[name].[ext]'),
-                ignore: ['.*']
-            },
-            {
-                from: path.resolve('./emails/assets/img/*.jpg'),
-                to: path.resolve(__dirname, 'dist-dev/img/[name].[ext]'),
-                ignore: ['.*']
-            }
-        ])
-    ]
+    // plugins: [
+    //     new copyWebpackPlugin([
+    //         {
+    //             from: path.resolve('./emails/assets/css/*.css'),
+    //             to: path.resolve(__dirname, 'dist-dev/css/[name].[ext]'),
+    //             ignore: ['.*']
+    //         },
+    //         {
+    //             from: path.resolve('./emails/assets/img/*.jpg'),
+    //             to: path.resolve(__dirname, 'dist-dev/img/[name].[ext]'),
+    //             ignore: ['.*']
+    //         }
+    //     ])
+    // ]
     
 });
