@@ -27,8 +27,6 @@ export class UserController extends BaseController {
     this.password='';
     this.type='';
     this.verifyModel = new Verify();
-    
-    
   }
 
   private mapItems(model: {}[]): User[] {
