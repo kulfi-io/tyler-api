@@ -130,7 +130,7 @@ export class UserController extends BaseController {
         !req.body.type
       ) {
         return res.status(400).send({ message: "missing data item(s)" });
-      }
+      } 
 
       this.email = this.decryptData(req.body.email);
       this.firstName = this.decryptData(req.body.firstName);
@@ -175,9 +175,10 @@ export class UserController extends BaseController {
           Schema.create(_model, (err: Error, data: IApiUser) => {
             if (err) return res.status(400).send({ message: err.message });
             
-            this.verifyModel.email = this.email;
-            this.verifyModel.username = this.username;
+            this.verifyModel.email = this.encryptData(this.email);
+            this.verifyModel.username = this.encryptData(this.username);
             this.verifyModel.token = data.validationToken;
+            this.verifyModel.userId = data._id;
 
             return res.status(201).send({message: this.verifyModel});
 
