@@ -21,7 +21,6 @@ export class DataAccess {
       socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
       user: dbConfig.mongoUser,
       pass: dbConfig.mongoPass,
-      dbName: dbConfig.mongoDb
     };
 
     const connection = () => {
