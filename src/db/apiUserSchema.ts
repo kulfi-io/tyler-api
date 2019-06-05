@@ -115,7 +115,7 @@ export class ApiUserSchema {
     };
 
     _schema.methods.generateValidationToken = function() {
-      const _expires = _schema.methods.expiresIn(1);
+      const _expires = _schema.methods.expiresIn(configInfo.verifyTokenExpiresIn);
 
       try {
         const _token = jwt.sign(
