@@ -7,6 +7,7 @@ import User from "../models/user";
 import UserType from "../models/userType";
 import { BaseController } from "./baseController";
 import Verify from "../models/verify";
+import {Types} from 'mongoose';
 
 export class UserController extends BaseController {
   private username:string;
@@ -254,6 +255,22 @@ export class UserController extends BaseController {
       return res.send(400).send({ message: err.message });
     }
   };
+
+  detete = (req: Request, res: Response) => {
+    if(!req.params || !req.params.id) {
+      return res.status(400).send({message: 'invalid parameter'});
+    }
+
+    Schema.deleteOne({ "_id" : Types.ObjectId(req.params.id) })
+    .then(() => {
+      return res.status(200).send({message: 'user deleted'});
+    })
+    .catch(err => {
+      console.error(err);
+    });
+
+    return;
+  }
 }
 
 export default new UserController();
