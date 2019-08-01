@@ -2,12 +2,10 @@
   "name": "tyler-api",
   "version": "0.0.1",
   "description": "http api for tyler-api",
-  "main": "./build/dist/tyler.api.bundle.js",
+  "main": "app.js",
   "scripts": {
-    "build-dev": "webpack --progress --config build/dev.config.js",
-    "build-prod": "webpack --progress --config build/prod.config.js",
-    "start": "node ./build/dist/tyler.api.bundle.js",
-    "start-dev": "node ./build/dist-dev/tyler.api.bundle.js",
+    "build": "webpack  --progress --config build/webpack.dev.config.js",
+    "start": "node build/dist/app.js",
     "stop": "killall tyler-api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -39,7 +37,6 @@
     "@types/typescript": "^2.0.0",
     "@types/uuid": "^3.4.4",
     "clean-webpack-plugin": "^1.0.1",
-    "copy-webpack-plugin": "^5.0.3",
     "ts-loader": "^5.4.5",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",

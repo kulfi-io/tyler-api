@@ -1,4 +1,4 @@
-import { BaseRoute } from "./baseRouter";
+import { BaseRoute } from "./base-router";
 import { Router, Request, Response, NextFunction } from "express";
 
 export class IndexRoute extends BaseRoute {

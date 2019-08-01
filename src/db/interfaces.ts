@@ -1,38 +1,30 @@
 import * as mongoose from "mongoose";
 
-export interface IDecoded {
-  id: string;
-  fdnq: string;
-  address: string;
-  exp: number;
-  iat: number;
-}
+// export interface IApiUser extends mongoose.Document {
+//   id: string;
+//   username: string;
+//   email: string;
+//   firstName: string;
+//   lastName: string;
+//   salt: string;
+//   password_hash: string;
+//   userTypeId: mongoose.Types.ObjectId;
+//   active: boolean;
+//   tokenValidated: boolean;
+//   validationToken: string;
 
-export interface IApiUser extends mongoose.Document {
-  id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  salt: string;
-  password_hash: string;
-  userTypeId: mongoose.Types.ObjectId;
-  active: boolean;
-  tokenValidated: boolean;
-  validationToken: string;
+//   validPassword(password: string): boolean;
+//   setPassword(password: string): boolean;
+//   matchPasswordCriteria(password: string): RegExpMatchArray;
+//   generateValidationToken(): string;
+// }
 
-  validPassword(password: string): boolean;
-  setPassword(password: string): boolean;
-  matchPasswordCriteria(password: string): RegExpMatchArray;
-  generateValidationToken(): string;
-}
-
-export interface IUserType extends mongoose.Document {
-  id: string;
-  display: string;
-  description: string;
-  active: boolean;
-}
+// export interface IUserType extends mongoose.Document {
+//   id: string;
+//   display: string;
+//   description: string;
+//   active: boolean;
+// }
 
 export interface IService extends mongoose.Document {
   id: string;
@@ -79,16 +71,16 @@ export interface IReview extends mongoose.Document {
   active: boolean;
 }
 
-export interface IValidClient extends mongoose.Document {
-  id: string;
-  ipAddress: string;
-  name: string;
-  description: string;
-  contactName: string;
-  email: string;
-  phoneNumber: number;
-  token: string;
-  active: boolean;
+// export interface IValidClient extends mongoose.Document {
+//   id: string;
+//   ipAddress: string;
+//   name: string;
+//   description: string;
+//   contactName: string;
+//   email: string;
+//   phoneNumber: number;
+//   token: string;
+//   active: boolean;
 
-  generateValidationToken(): string;
-}
+//   generateValidationToken(): string;
+// }

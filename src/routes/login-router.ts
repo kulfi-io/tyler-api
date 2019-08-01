@@ -1,6 +1,6 @@
-import { BaseRoute } from "./baseRouter";
+import { BaseRoute } from "./base-router";
 import { Router} from "express";
-import controller from "../controllers/loginController";
+import controller from "../controllers/login-controller";
 
 export class LoginRoute extends BaseRoute {
    
@@ -10,6 +10,7 @@ export class LoginRoute extends BaseRoute {
 
     public static map(router: Router) {
         router.post('/v1/login', controller.login);
-        router.post('/v1/reset', controller.resetPassword);
+        // router.post('/v1/reset', controller.resetPassword);
+        router.post('/v1/verify', controller.verifyUser);
     }
 }

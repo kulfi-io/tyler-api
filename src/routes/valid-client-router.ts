@@ -1,9 +1,9 @@
-import { BaseRoute } from "./baseRouter";
-import { Router} from "express";
-import controller from "../controllers/validClientController";
+import controller from '../controllers/valid-client-controller';
+import { BaseRoute } from './base-router';
+import { Router } from 'express';
 
 export class ValidClientRoute extends BaseRoute {
-   
+
     constructor() {
         super();
     }

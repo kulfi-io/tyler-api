@@ -1,17 +1,20 @@
-import { IUserType } from "./interfaces";
-import dataAccess from "./dataAccess";
+import {Schema, model, Document, Model } from 'mongoose';
 import * as validator from "mongoose-unique-validator";
-import * as mongoose from "mongoose";
+
+declare interface IUserTypeSchema extends Document {
+  id: string;
+  display: string;
+  description: string;
+  active: boolean;
+}
+
+export interface IUserTypeModel extends Model<IUserTypeSchema>{}
 
 export class UserTypeSchema {
-  id?: string;
-  display?: string;
-  description?: string;
-  active?: boolean;
+  private _model: Model<IUserTypeSchema>
 
-  public get schema(): mongoose.Schema {
-    const _schema = new mongoose.Schema(
-      {
+  constructor() {
+      const schema = new Schema({
         id: {
           type: String,
           index: true,
@@ -34,16 +37,14 @@ export class UserTypeSchema {
         }
       },
       { timestamps: true }
-    );
+      );
 
-    _schema.plugin(validator, { message: "is already taken" });
+      schema.plugin(validator, { message: "is already taken" });
 
-    return _schema;
+      this._model = model<IUserTypeSchema>('UserTypes', schema);
+  }
+
+  public get model(): Model<IUserTypeSchema> {
+      return this._model
   }
 }
-
-const model = dataAccess.dbConnection.model<IUserType>(
-  "UserTypes",
-  new UserTypeSchema().schema
-);
-export default model;

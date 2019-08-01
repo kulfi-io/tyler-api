@@ -1,14 +1,14 @@
-import { BaseRoute } from "./baseRouter";
-import { Router} from "express";
-import controller from "../controllers/clientController";
+// import controller from '../controllers/clientController';
+// import { BaseRoute } from './base-router';
+// import { Router } from 'express';
 
-export class ClientInfoRoute extends BaseRoute {
-   
-    constructor() {
-        super();
-    }
+// export class ClientInfoRoute extends BaseRoute {
 
-    public static map(router: Router) {
-        router.get('/clientinfo', controller.getAll);
-    }
-}
+//     constructor() {
+//         super();
+//     }
+
+//     public static map(router: Router) {
+//         router.get('/clientinfo', controller.getAll);
+//     }
+// }

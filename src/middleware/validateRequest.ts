@@ -1,56 +1,52 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import * as config from "../config/db.config.json";
-import { IDecoded, IApiUser } from "../db/interfaces.js";
-import Schema from "../db/validClientSchema";
+import * as config from "../config/config.json";
+import { IDecoded, IUser } from '../models/model-interfaces';
+import { VERIFY } from './verify-enums';
+import ValidController from '../controllers/valid-client-controller'
+import { IUserModel } from "../db/user-schema.js";
+
 
 export class ValidateRequest {
   static validate(req: Request, res: Response, next: NextFunction) {
     const token = (
-      (req.body && req.body.access_token) ||
-      (req.query && req.query.access_token) ||
-      req.headers["x_access_token"]
-    )
-      .toString()
-      .trim();
+      (req.body && req.body.access_token) 
+      || (req.query && req.query.access_token) 
+      || req.headers["x_access_token"]
+    ).toString().trim();
 
     const address =
       req.headers && req.headers.forwarded
         ? req.headers.forwarded
         : req.connection.remoteAddress;
 
-    if (!token || !address) {
-      return res.status(400).send({ message: "Invalid token or address" });
-    } else {
-      try {
-        const _decoded = <IDecoded>jwt.verify(token, config.secret);
-        if (!_decoded) {
-          return res.status(400).send({ message: "Decoding error" });
-        } else {
-          if (_decoded.exp <= Date.now()) {
-            return res.status(400).send({ message: "Token Expired" });
-          }
+    if(!token || !address)
+      return res.status(400).send({message: VERIFY.INVALID_TOKEN_OR_ADDRESS});
 
-          if (address !== _decoded.address) {
-            return res.status(400).send({ message: "Unauthorized address" });
-          }
+    const _decoded = <IDecoded>jwt.verify(token, config.secret);
+    
+    if(!_decoded)
+      return res.status(400).send({message: VERIFY.DECODING_ERROR});
 
-          Schema.findById(_decoded.id, (err: Error, data: IApiUser) => {
-            if (err) return res.status(400).send(err.message);
+    if(_decoded.exp <= Date.now())
+      return res.status(400).send({message: VERIFY.TOKEN_EXPIRED});
+    
+    if(address !== _decoded.address)
+      return res.status(400).send({message: VERIFY.UNAUTHORIZED_ADDRESS});
 
-            if (data && data.active) {
-              return next();
-            } else {
-              return res.status(417).send({ message: "Inactive token" });
-            }
-          });
+    
+    ValidController.model.findById(_decoded.id, (err: Error, data) => {
+        
+      if(err) return res.status(400).send(err.message);
 
-          return;
-        }
-      } catch (err) {
-        return res.status(400).send({ message: err.message });
+      if(data && data.active) {
+        return next();
       }
-    }
+
+      return res.status(417).send({message: VERIFY.INACTIVE_TOKEN})
+    
+    });
+    
   }
 }
 

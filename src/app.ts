@@ -1,21 +1,21 @@
-import * as express from 'express'
-import * as cors from 'cors';
-import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
+import * as express from 'express';
 import * as helmet from 'helmet';
+import * as logger from 'morgan';
+// import { ClientInfoRoute } from './routes/clientInfoRouter';
+// import { DurationRoute } from './routes/durationRouter';
 import { IndexRoute } from './routes/indexRouter';
+import { LoginRoute } from './routes/login-router';
+// import { ServiceRoute } from './routes/serviceRoute';
+import { UserRoute } from './routes/user-router';
+import { UserTypeRoute } from './routes/user-type-router';
 import { ValidateRequest } from './middleware/validateRequest';
-import { LoginRoute } from './routes/loginRouter';
-import { UserTypeRoute } from './routes/userTypeRouter';
-import { UserRoute } from './routes/userRouter';
-import { ValidClientRoute } from './routes/validClientRouter';
-import { ServiceRoute } from './routes/serviceRoute';
-import { DurationRoute } from './routes/durationRouter';
-import { ClientInfoRoute } from './routes/clientInfoRouter';
+import { ValidClientRoute } from './routes/valid-client-router';
 
 export class App {
   private server: express.Application;
-  
+
   constructor() {
     process.title = "tyler-api";
     this.server = express();
@@ -26,7 +26,7 @@ export class App {
   private configureMiddleware() {
     this.server.use(logger('dev'));
     this.server.use(bodyParser.urlencoded({ extended: false }));
-    this.server.use(bodyParser.json()); 
+    this.server.use(bodyParser.json());
     this.server.use(helmet());
     this.server.disable('x-powered-by');
     this.server.all('/*', cors());
@@ -34,20 +34,20 @@ export class App {
   }
 
   private routes() {
-    
+
     const router = express.Router();
 
-    ClientInfoRoute.map(router);
+    // ClientInfoRoute.map(router);
     IndexRoute.map(router);
     LoginRoute.map(router);
     UserRoute.map(router);
     UserTypeRoute.map(router);
     ValidClientRoute.map(router);
-    ServiceRoute.map(router);
-    DurationRoute.map(router);
-    
+    // ServiceRoute.map(router);
+    // DurationRoute.map(router);
+
     this.server.use(router);
-    
+
   }
 
   public run(port: number, host: string) {
