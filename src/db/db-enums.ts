@@ -1,3 +1,8 @@
+export enum ENV {
+    DEV = "development",
+    PROD = "production"
+}
+
 export enum CONN {
     FAILURE = "Connection failure",
     CONNECTED = "Connected to db",

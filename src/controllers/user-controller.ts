@@ -1,13 +1,12 @@
 import * as uuid from 'uuid';
 import User from '../models/user';
-import UserType from '../models/user-type';
 import Verify from '../models/verify';
 import { BaseController } from './base-controller';
 import { IUser, IUserType } from '../models/model-interfaces';
 import { IUserModel } from '../db/user-schema';
 import { IUserTypeModel } from '../db/user-type-schema';
 import { Request, Response } from 'express';
-import { Types } from 'mongoose';
+import { Types, MongooseDocument} from 'mongoose';
 import { USER } from '../db/db-enums';
 
 export class UserController extends BaseController {
@@ -35,7 +34,8 @@ export class UserController extends BaseController {
 
   private mapItem(model: IUser): User {
     const _data = new User();
-
+    const _type = this.convertToSchemaType<MongooseDocument, IUserType>(model.userType);
+    
     _data.active = model.active ? this.encryptData('true') : this.encryptData('false');
     _data.email = this.encryptData(model.email);
     _data.firstName = this.encryptData(model.firstName);
@@ -44,12 +44,10 @@ export class UserController extends BaseController {
     _data.tokenValidated = model.tokenValidated ? this.encryptData('true') : this.encryptData('false');
     _data.username = this.encryptData(model.username);
     _data.validationToken = this.encryptData(model.validationToken);
-
-    _data.userType = new UserType();
-    _data.userType.id = this.encryptData(model.userType.id);
-    _data.userType.active = model.userType.active ? this.encryptData('true') : this.encryptData('false');
-    _data.userType.description = this.encryptData(model.userType.description);
-
+    _data.userType.id = this.encryptData(_type.id);
+    _data.userType.display = this.encryptData(_type.display);
+    _data.userType.description = this.encryptData(_type.description);
+    _data.userType.active = _type.active ? this.encryptData('true') : this.encryptData('false');
 
     return _data;
   }
@@ -64,18 +62,21 @@ export class UserController extends BaseController {
             from: 'usertypes',
             localField: 'userTypeId',
             foreignField: '_id',
-            as: 'userType'
+            as: 'userType',
           }
         },
         { $sort: { 'username': 1 } },
-        { $limit: 200 }
+        { $limit: 200 },
+        {
+          $unwind: '$userType'
+        }
 
       ])
-        .exec((err: Error, data) => {
-          if (err) return res.status(400).send({ message: err.message });
-          const _data = this.mapItems(data);
-          return res.status(200).send(_data);
-        });
+      .exec((err: Error, data) => {
+        if (err) return res.status(400).send({ message: err.message });
+        const _data = this.mapItems(data);
+        return res.status(200).send(_data);
+      });
 
 
     } catch (err) {
@@ -102,11 +103,11 @@ export class UserController extends BaseController {
         },
         { $limit: 1 }
       ])
-        .exec((err: Error, data) => {
-          if (err) return res.status(400).send({ message: err.message });
-          const _data = this.mapItems(data);
-          return res.status(200).send(_data);
-        });
+      .exec((err: Error, data: IUser[]) => {
+        if (err) return res.status(400).send({ message: err.message });
+        const _data = this.mapItems(data);
+        return res.status(200).send(_data);
+      });
 
     } catch (err) {
       return res.status(400).send({ message: err.message });
@@ -159,21 +160,21 @@ export class UserController extends BaseController {
         _user.userTypeId = data._id;
 
     })
-      .then(() => {
+    .then(() => {
 
-        this.userModel.create(_user, (err: Error, data: IUser) => {
-          if (err) return res.status(400).send({ message: err.message });
+      this.userModel.create(_user, (err: Error, data: IUser) => {
+        if (err) return res.status(400).send({ message: err.message });
 
-          this.verify.email = this.encryptData(data.email);
-          this.verify.username = this.encryptData(data.username);
-          this.verify.token = data.validationToken;
-          this.verify.userId = data._id;
+        this.verify.email = this.encryptData(data.email);
+        this.verify.username = this.encryptData(data.username);
+        this.verify.token = data.validationToken;
+        this.verify.userId = data._id;
 
-          return res.status(201).send({ message: this.verify });
-
-        });
+        return res.status(201).send({ message: this.verify });
 
       });
+
+    });
 
   }
 

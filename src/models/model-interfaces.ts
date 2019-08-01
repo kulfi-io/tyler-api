@@ -24,7 +24,7 @@ export interface IUserType extends Document {
   id: string;
   display: string;
   description: string;
-  active: boolean;
+  active: boolean | string;
 }
 
 export interface IUser  extends Document {

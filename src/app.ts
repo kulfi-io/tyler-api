@@ -3,7 +3,7 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as helmet from 'helmet';
 import * as logger from 'morgan';
-// import { ClientInfoRoute } from './routes/clientInfoRouter';
+import { ClientInfoRoute } from './routes/clientInfo-router';
 // import { DurationRoute } from './routes/durationRouter';
 import { IndexRoute } from './routes/indexRouter';
 import { LoginRoute } from './routes/login-router';
@@ -30,14 +30,14 @@ export class App {
     this.server.use(helmet());
     this.server.disable('x-powered-by');
     this.server.all('/*', cors());
-    this.server.all('/v1/*', ValidateRequest.validate);
+    // this.server.all('/v1/*', ValidateRequest.validate);
   }
 
   private routes() {
 
     const router = express.Router();
 
-    // ClientInfoRoute.map(router);
+    ClientInfoRoute.map(router);
     IndexRoute.map(router);
     LoginRoute.map(router);
     UserRoute.map(router);
@@ -53,6 +53,7 @@ export class App {
   public run(port: number, host: string) {
     this.server.listen(port, host, () => {
       console.log(`listening on port: ${port}`);
+      console.log(`ENV: ${process.env.NODE_ENV}`);
     });
   }
 
