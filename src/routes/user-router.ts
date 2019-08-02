@@ -9,11 +9,11 @@ export class UserRoute extends BaseRoute {
     }
 
     public static map(router: Router) {
-        router.get('/v1/user', controller.getAll);
+        router.get('/v1/admin/user', controller.getAll);
         router.get('/v1/user/:id', controller.getOne);
-        router.post('/v1/user', controller.create);
-        router.put('/v1/user', controller.update);
+        router.post('/v1/register', controller.create);
+        router.put('/v1/register', controller.update);
         router.put('/v1/user/:id', controller.deactivate);
-        router.delete('/v1/user/:id', controller.detete);
+        router.delete('/v1/admin/user/:id', controller.detete);
     }
 }

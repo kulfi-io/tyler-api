@@ -36,6 +36,7 @@ export class UserController extends BaseController {
     const _data = new User();
     const _type = this.convertToSchemaType<MongooseDocument, IUserType>(model.userType);
     
+
     _data.active = model.active ? this.encryptData('true') : this.encryptData('false');
     _data.email = this.encryptData(model.email);
     _data.firstName = this.encryptData(model.firstName);
@@ -92,7 +93,7 @@ export class UserController extends BaseController {
       }
 
       this.userModel.aggregate([
-        { $match: { 'id': req.params.id, 'active': true } },
+        { $match: { '_id': this.mongoIdObject(req.params.id), 'active': true } },
         {
           $lookup: {
             from: 'usertypes',
@@ -101,9 +102,12 @@ export class UserController extends BaseController {
             as: 'userType'
           }
         },
-        { $limit: 1 }
+        { $limit: 1 },
+        {
+          $unwind: '$userType'
+        }
       ])
-      .exec((err: Error, data: IUser[]) => {
+      .exec((err: Error, data) => {
         if (err) return res.status(400).send({ message: err.message });
         const _data = this.mapItems(data);
         return res.status(200).send(_data);
@@ -119,22 +123,23 @@ export class UserController extends BaseController {
 
     if (
       !req.body ||
+      !req.body.username ||
       !req.body.email ||
-      !req.body.firstName ||
-      !req.body.lastName ||
+      !req.body.firstname ||
+      !req.body.lastname ||
       !req.body.username ||
       !req.body.password ||
       !req.body.type
     ) {
-      return res.status(400).send({ message: "missing data item(s)" });
+      return res.status(400).send({ message: USER.MISSING_REQUIRED_ITEMS });
     }
     const _pwd = this.decryptData(req.body.password)
 
     const _user = new this.userModel({
       id: uuid(),
       email: this.decryptData(req.body.email),
-      firstName: this.decryptData(req.body.firstName),
-      lastName: this.decryptData(req.body.lastName),
+      firstName: this.decryptData(req.body.firstname),
+      lastName: this.decryptData(req.body.lastname),
       username: this.decryptData(req.body.username),
 
     });
@@ -173,9 +178,7 @@ export class UserController extends BaseController {
         return res.status(201).send({ message: this.verify });
 
       });
-
     });
-
   }
 
   update = (req: Request, res: Response) => {

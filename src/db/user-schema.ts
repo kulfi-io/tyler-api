@@ -43,7 +43,7 @@ export class UserSchema {
           type: String,
           lowercase: true,
           required: [true, "is required"],
-          match: [/[a-zA-Z0-9-_]{5,20}\w+/, "is invalid"],
+          match: [/[a-zA-Z0-9-_]{5,20}\w+/, "needs to be 6 to 20 alpha-numeric characters. allowable chareacters(-_)"],
           unique: true,
           index: true
         },

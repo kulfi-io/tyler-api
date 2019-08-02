@@ -26,7 +26,6 @@ export  class BaseController {
         return _output;
     }
 
-
     protected encryptData(data: string): string {
         var _data = crypto.AES.encrypt(data, config.transportSecret);
         return  this.isProd ? _data.toString() : data;
