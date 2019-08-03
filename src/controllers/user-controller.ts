@@ -133,6 +133,7 @@ export class UserController extends BaseController {
     ) {
       return res.status(400).send({ message: USER.MISSING_REQUIRED_ITEMS });
     }
+
     const _pwd = this.decryptData(req.body.password)
 
     const _user = new this.userModel({
@@ -143,6 +144,8 @@ export class UserController extends BaseController {
       username: this.decryptData(req.body.username),
 
     });
+
+
 
     if (!_user.matchPasswordCriteria(_pwd))
       return res.status(400).send({ message: USER.PASSWORD_MISMATCH });
@@ -168,7 +171,10 @@ export class UserController extends BaseController {
     .then(() => {
 
       this.userModel.create(_user, (err: Error, data: IUser) => {
-        if (err) return res.status(400).send({ message: err.message });
+        if (err) {
+          const _msg = this.correctDbMessage(err.message)
+          return res.status(400).send({ message: _msg});
+        } 
 
         this.verify.email = this.encryptData(data.email);
         this.verify.username = this.encryptData(data.username);
@@ -230,7 +236,6 @@ export class UserController extends BaseController {
         return res.status(204).send({ message: USER.DEACTIVATED });
       }
     );
-
   };
 
   detete = (req: Request, res: Response) => {

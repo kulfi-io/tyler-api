@@ -12,7 +12,7 @@ import { UserRoute } from './routes/user-router';
 import { UserTypeRoute } from './routes/user-type-router';
 import { ValidateRequest } from './middleware/validateRequest';
 import { ValidClientRoute } from './routes/valid-client-router';
-
+import * as config from './config/config.json';
 export class App {
   private server: express.Application;
 
@@ -21,6 +21,7 @@ export class App {
     this.server = express();
     this.configureMiddleware();
     this.routes();
+    this.run(config.port, config.host);
   }
 
   private configureMiddleware() {

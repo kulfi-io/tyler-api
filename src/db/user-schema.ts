@@ -94,7 +94,7 @@ export class UserSchema {
       { timestamps: true }
     );
 
-    schema.plugin(validator, { message: "is already taken" });
+    schema.plugin(validator, {message: ':taken'});
 
     schema.methods.matchPasswordCriteria = (
       password: string

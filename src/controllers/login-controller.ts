@@ -102,29 +102,29 @@ export class loginController extends BaseController {
       jwt.verify(_token, this.secret)
     );
 
-    if (!_decoded) {
+    if(!_decoded)
       return res.status(400).send({ message: VERIFY.DECODING_ERROR });
-    } else {
-      if (_decoded.exp > Date.now() / 1000) {
-        this.model.findByIdAndUpdate(
-          _decoded.id,
-          { tokenValidated: true },
-          (err: Error, result) => {
-            if (err) return res.status(400).send(err.message);
+    
+    if (_decoded.exp > Date.now() / 1000) {
+      this.model.findByIdAndUpdate(
+        _decoded.id,
+        { tokenValidated: true },
+        (err: Error, result) => {
+          if (err) return res.status(400).send(err.message);
 
-            if (result) {
-              if (result.username === _username
-                && result.validPassword(_password, result.password_hash, result.salt)) {
-                return res.status(200).send({ message: USER.VALIDATED_TOKEN });
-              }
+          if (result) {
+            if (result.username === _username
+              && result.validPassword(_password, result.password_hash, result.salt)) {
+              return res.status(200).send({ message: USER.VALIDATED_TOKEN });
             }
-            return res.status(400).send({ message: USER.NAME_PASSWORD_TOKEN_MISMATCH });
           }
-        );
-      }
-
-      return res.status(401).send({ message: VERIFY.TOKEN_EXPIRED });
+          return res.status(400).send({ message: USER.NAME_PASSWORD_TOKEN_MISMATCH });
+        }
+      );
     }
+
+    return res.status(401).send({ message: VERIFY.TOKEN_EXPIRED });
+  
   };
 }
 

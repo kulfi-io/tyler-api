@@ -15,6 +15,22 @@ export  class BaseController {
         this.isProd = process.env.NODE_ENV === ENV.PROD;
     }
 
+    protected correctDbMessage = (message: string): string => {
+        
+        if(message.indexOf(':taken') >= 0) {
+            const _msg = message.split(':');
+            _msg.splice(0,1);
+        
+            const  _filtered = _msg.toString().split(',').filter(x => x !== ' ' && x !== 'taken');
+            const _stripped = `${_filtered.toString()} ${_filtered.length > 1 ? 'are' : 'is'} taken`;
+            
+            return _stripped;
+        } 
+
+        return message;
+
+    }
+
     private convertToTarget<T>(target: Object) : T {
         return <T>target;
     }
