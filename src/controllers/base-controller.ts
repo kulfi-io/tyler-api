@@ -48,9 +48,15 @@ export  class BaseController {
     }
 
     protected decryptData(data: string): string {
-        var _data = crypto.AES.decrypt(data, config.transportSecret);
-        var _plaintext = _data.toString(crypto.enc.Utf8);
-        return this.isProd ? _plaintext : data;
+
+        if(this.isProd) {
+            var _data = crypto.AES.decrypt(data, config.transportSecret);
+            var _plaintext = _data.toString(crypto.enc.Utf8);
+            return _plaintext;
+        }
+
+        return data;
+       
     }
 
     protected mongoIdObject(data: string) {
