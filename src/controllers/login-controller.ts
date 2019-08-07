@@ -26,8 +26,6 @@ export class loginController extends BaseController {
       password: this.decryptIV(req.body.password)
     }
 
-    console.debug('decrypted', _login);
-
     this.model.findOne({ username: _login.username }).exec(
       (err: Error, data) => {
         if (err) return res.status(400).send({ message: err.message });

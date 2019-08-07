@@ -145,8 +145,6 @@ export class UserController extends BaseController {
 
     });
 
-
-
     if (!_user.matchPasswordCriteria(_pwd))
       return res.status(400).send({ message: USER.PASSWORD_MISMATCH });
 
