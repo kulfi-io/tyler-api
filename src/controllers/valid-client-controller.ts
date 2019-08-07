@@ -24,14 +24,14 @@ export class ValidClientController extends BaseController {
 
   private mapItem(model: IValidClient): ValidClient {
     const _data = new ValidClient();
-    _data.active = model.active ? this.encryptData('true') : this.encryptData('false');
-    _data.contactName = this.encryptData(model.contactName);
-    _data.description = this.encryptData(model.description);
-    _data.email = this.encryptData(model.email);
+    _data.active = model.active ? this.encryptIV('true') : this.encryptIV('false');
+    _data.contactName = this.encryptIV(model.contactName);
+    _data.description = this.encryptIV(model.description);
+    _data.email = this.encryptIV(model.email);
     _data.id = model.id;
-    _data.ipAddress = this.encryptData(model.ipAddress);
-    _data.name = this.encryptData(model.name);
-    _data.phoneNumber = this.encryptData(model.phoneNumber.toString());
+    _data.ipAddress = this.encryptIV(model.ipAddress);
+    _data.name = this.encryptIV(model.name);
+    _data.phoneNumber = this.encryptIV(model.phoneNumber.toString());
 
     return _data;
   }
@@ -48,7 +48,7 @@ export class ValidClientController extends BaseController {
   getOne = (req: Request, res: Response) => {
 
     if (!req.params || !req.params.id) {
-      return res.status(400).send({message: VALIDCLIENT.INVALID_IDENTIFIER});
+      return res.status(400).send({ message: VALIDCLIENT.INVALID_IDENTIFIER });
     }
 
     this.model.findById(req.params.id, (err, data: IValidClient) => {
@@ -123,7 +123,7 @@ export class ValidClientController extends BaseController {
 
   deactivate = (req: Request, res: Response) => {
     if (!req.params || !req.params.id) {
-      return res.status(400).send({message: VALIDCLIENT.INVALID_IDENTIFIER});
+      return res.status(400).send({ message: VALIDCLIENT.INVALID_IDENTIFIER });
     }
 
     this.model.findByIdAndUpdate(

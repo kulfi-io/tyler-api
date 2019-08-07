@@ -19,7 +19,7 @@ declare interface IUserSchema extends Document {
 
   matchPasswordCriteria(password: string): RegExpMatchArray | null;
   expiredIn(days: number): number;
-  generateValidationToken(username: string): string | null;
+  generateValidationToken(username: string, id:string): string | null;
   validPassword(password: string, stored:string, salt:string): boolean;
   generateSalt(): string;
   generatePasswordHash(password: string, salt: string): string;
@@ -119,13 +119,14 @@ export class UserSchema {
       
     }
 
-    schema.methods.generateValidationToken = (username: string): string | null => {
+    schema.methods.generateValidationToken = (username: string, id:string): string | null => {
       const _expires = schema.methods.expiresIn(config.account.verifyTokenExpiresIn);
 
       try {
         const _token = jwt.sign(
           {
             username: username,
+            id: id,
             exp: _expires
           },
           config.secret

@@ -1,37 +1,49 @@
-import * as config from '../config/config.json'
-import * as crypto from 'crypto-js'
-import { Types } from "mongoose";
+import * as config from '../config/config.json';
+import * as crypto from 'crypto';
 import { AccountDB } from '../controllers/account-db-controller';
 import { ENV } from '../db/db-enums';
+import { Types } from 'mongoose';
 
-export  class BaseController {
+export class BaseController {
     protected DB: typeof AccountDB
     protected secret: string;
     protected isProd: boolean;
-    
+    private hashType: string;
+    private algorithim: string;
+    private hash: crypto.Hmac;
+    private key: Buffer;
+    private iv: Buffer;
+
+
     constructor() {
         this.DB = AccountDB;
         this.secret = config.secret;
         this.isProd = process.env.NODE_ENV === ENV.PROD;
+        this.hashType = 'sha512';
+        this.algorithim = 'aes-256-gcm';
+
+        this.hash = crypto.createHmac(this.hashType, config.secret);
+        this.key = this.hash.digest().slice(0, 32);
+        this.iv = Buffer.alloc(16, 0);
     }
 
     protected correctDbMessage = (message: string): string => {
-        
-        if(message.indexOf(':taken') >= 0) {
+
+        if (message.indexOf(':taken') >= 0) {
             const _msg = message.split(':');
-            _msg.splice(0,1);
-        
-            const  _filtered = _msg.toString().split(',').filter(x => x !== ' ' && x !== 'taken');
+            _msg.splice(0, 1);
+
+            const _filtered = _msg.toString().split(',').filter(x => x !== ' ' && x !== 'taken');
             const _stripped = `${_filtered.toString()} ${_filtered.length > 1 ? 'are' : 'is'} taken`;
-            
+
             return _stripped;
-        } 
+        }
 
         return message;
 
     }
 
-    private convertToTarget<T>(target: Object) : T {
+    private convertToTarget<T>(target: Object): T {
         return <T>target;
     }
 
@@ -42,21 +54,19 @@ export  class BaseController {
         return _output;
     }
 
-    protected encryptData(data: string): string {
-        var _data = crypto.AES.encrypt(data, config.transportSecret);
-        return  this.isProd ? _data.toString() : data;
+    protected encryptIV = (data: string): string => {
+        const _cipher = crypto.createCipheriv(this.algorithim, this.key, this.iv);
+        let _encrypted = _cipher.update(data, 'utf8', 'hex');
+        let _final = _cipher.final('hex');
+
+        return this.isProd ? _encrypted : data;
     }
 
-    protected decryptData(data: string): string {
+    protected decryptIV = (data: string): string => {
+        const _decipher = crypto.createDecipheriv(this.algorithim, this.key, this.iv);
+        let _decrypted = _decipher.update(data, 'hex', 'utf8');
 
-        if(this.isProd) {
-            var _data = crypto.AES.decrypt(data, config.transportSecret);
-            var _plaintext = _data.toString(crypto.enc.Utf8);
-            return _plaintext;
-        }
-
-        return data;
-       
+        return this.isProd ? _decrypted : data;
     }
 
     protected mongoIdObject(data: string) {

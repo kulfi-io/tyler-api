@@ -1,4 +1,4 @@
-import {Document} from 'mongoose';
+import { Document } from 'mongoose';
 
 export interface IValidClient extends Document {
   id: string;
@@ -27,7 +27,7 @@ export interface IUserType extends Document {
   active: boolean | string;
 }
 
-export interface IUser  extends Document {
+export interface IUser extends Document {
   id: string;
   username: string;
   email: string;
@@ -37,4 +37,13 @@ export interface IUser  extends Document {
   active: boolean;
   tokenValidated: boolean;
   validationToken: string;
+}
+
+export interface ILogin {
+  username: string;
+  password: string;
+}
+
+export interface IValidate extends ILogin {
+  token: string;
 }

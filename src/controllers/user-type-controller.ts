@@ -27,10 +27,10 @@ export class UserTypeController extends BaseController {
   private mapItem(model: IUserType): UserType {
 
     const _data = new UserType();
-    _data.active = model.active ? this.encryptData('true') : this.encryptData('false');
-    _data.description = this.encryptData(model.description);
-    _data.display = this.encryptData(model.display);
-    _data.id = this.encryptData(model.id);
+    _data.active = model.active ? this.encryptIV('true') : this.encryptIV('false');
+    _data.description = this.encryptIV(model.description);
+    _data.display = this.encryptIV(model.display);
+    _data.id = this.encryptIV(model.id);
 
     return _data;
 
@@ -49,7 +49,7 @@ export class UserTypeController extends BaseController {
   getOne = (req: Request, res: Response) => {
 
     if (!req.params || !req.params.id) {
-      return res.status(400).send({message: USERTYPE.INVALID_IDENTIFIER});
+      return res.status(400).send({ message: USERTYPE.INVALID_IDENTIFIER });
     }
 
     this.model.findById(req.params.id, (err, data: IUserType) => {
@@ -63,7 +63,7 @@ export class UserTypeController extends BaseController {
   create = (req: Request, res: Response) => {
 
     if (!req.body || !req.body.description || !req.body.display) {
-      return res.status(400).send({message: USERTYPE.MISSING_REQUIRED_ITEMS});
+      return res.status(400).send({ message: USERTYPE.MISSING_REQUIRED_ITEMS });
     }
 
     const _model = new UserType();
