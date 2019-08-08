@@ -47,3 +47,15 @@ export interface ILogin {
 export interface IValidate extends ILogin {
   token: string;
 }
+
+export interface IResetAccount {
+  email: string;
+}
+
+export interface IUserReset {
+  username: string;
+  firstname: string;
+  lastname: string;
+  token: string;
+  email: string;
+}

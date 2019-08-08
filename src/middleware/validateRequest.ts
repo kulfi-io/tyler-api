@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import * as config from "../config/config.json";
-import { IDecoded, IUser } from '../models/model-interfaces';
+import { IDecoded} from '../models/model-interfaces';
 import { VERIFY } from './verify-enums';
 import ValidController from '../controllers/valid-client-controller'
-import { IUserModel } from "../db/user-schema.js";
 
 
 export class ValidateRequest {

@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import { BaseController } from './base-controller';
-import { IDecoded, ILogin, IValidate } from '../models/model-interfaces';
+import { IDecoded, ILogin, IValidate, IUserReset, IResetAccount } from '../models/model-interfaces';
 import { IUserModel } from '../db/user-schema';
 import { Request, Response } from 'express';
 import { USER } from '../db/db-enums';
@@ -53,6 +53,55 @@ export class loginController extends BaseController {
 
   };
 
+  resetPasswordRequest = (req: Request, res: Response) => {
+
+      if(!req.body.email) {
+        return res.status(400).send({message: USER.MISSING_REQUIRED_ITEMS});
+      }
+
+      const _resetAccount: IResetAccount = {
+        email: this.decryptIV(req.body.email)
+      }
+
+      this.model.findOne({email: _resetAccount.email}).exec(
+        (err: Error, data) => {
+
+          if(err) return res.status(400).send({message: err.message});
+          
+          if(data) {
+            data.tokenValidated = false;
+            const _token = data.generateValidationToken(data.username, data._id);
+  
+            if(!_token)
+              res.status(400).send({message: USER.TOKEN_GENERATION_ERROR});
+            else
+              data.validationToken = _token;
+  
+            this.model.findByIdAndUpdate(data._id, {tokenValidated: data.tokenValidated, validationToken: data.validationToken}
+              ,(err: Error, data) => {
+  
+                if(err) return res.status(400).send({message: err.message});
+  
+                if(data) {
+  
+                  const _user: IUserReset = {
+                    username: this.encryptIV(data.username),
+                    email: this.encryptIV(data.email),
+                    firstname: this.encryptIV(data.firstName),
+                    lastname: this.encryptIV(data.lastName),
+                    token: data.validationToken
+                  }; 
+                
+                  return res.status(200).send({message: _user});
+                }
+            });
+
+          } else {
+            return res.status(401).send({message: USER.INVALID_USER});
+          }
+
+      });
+  }
   // resetPassword = (req: Request, res: Response) => {
   //   try {
   //     if (!req.body.username || !req.body.password) {

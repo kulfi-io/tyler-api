@@ -166,23 +166,23 @@ export class UserController extends BaseController {
         _user.userTypeId = data._id;
 
     })
-      .then(() => {
+    .then(() => {
 
-        this.userModel.create(_user, (err: Error, data: IUser) => {
-          if (err) {
-            const _msg = this.correctDbMessage(err.message)
-            return res.status(400).send({ message: _msg });
-          }
+      this.userModel.create(_user, (err: Error, data: IUser) => {
+        if (err) {
+          const _msg = this.correctDbMessage(err.message)
+          return res.status(400).send({ message: _msg });
+        }
 
-          this.verify.email = this.encryptIV(data.email);
-          this.verify.username = this.encryptIV(data.username);
-          this.verify.token = data.validationToken;
-          this.verify.userId = data._id;
+        this.verify.email = this.encryptIV(data.email);
+        this.verify.username = this.encryptIV(data.username);
+        this.verify.token = data.validationToken;
+        this.verify.userId = data._id;
 
-          return res.status(201).send({ message: this.verify });
+        return res.status(201).send({ message: this.verify });
 
-        });
       });
+    });
   }
 
   update = (req: Request, res: Response) => {

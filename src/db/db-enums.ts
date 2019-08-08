@@ -25,7 +25,8 @@ export enum USER {
     TOKEN_VALIDATION_NEEDED = "Please validate your registration",
     NAME_PASSWORD_TOKEN_MISMATCH = "Either username password or token is incorrect",
     VALIDATED_TOKEN = "Thank you for validating the token",
-    INVALID_USER = "Invalid user"
+    INVALID_USER = "Invalid user",
+    
 }   
 
 export enum USERTYPE {
