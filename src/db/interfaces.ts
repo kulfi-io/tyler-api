@@ -1,31 +1,5 @@
 import * as mongoose from "mongoose";
 
-// export interface IApiUser extends mongoose.Document {
-//   id: string;
-//   username: string;
-//   email: string;
-//   firstName: string;
-//   lastName: string;
-//   salt: string;
-//   password_hash: string;
-//   userTypeId: mongoose.Types.ObjectId;
-//   active: boolean;
-//   tokenValidated: boolean;
-//   validationToken: string;
-
-//   validPassword(password: string): boolean;
-//   setPassword(password: string): boolean;
-//   matchPasswordCriteria(password: string): RegExpMatchArray;
-//   generateValidationToken(): string;
-// }
-
-// export interface IUserType extends mongoose.Document {
-//   id: string;
-//   display: string;
-//   description: string;
-//   active: boolean;
-// }
-
 export interface IService extends mongoose.Document {
   id: string;
   description: string;

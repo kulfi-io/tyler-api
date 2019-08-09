@@ -1,6 +1,6 @@
-import { BaseRoute } from "./base-router";
-import { Router} from "express";
-import controller from "../controllers/login-controller";
+import controller from '../controllers/login-controller';
+import { BaseRoute } from './base-router';
+import { Router } from 'express';
 
 export class LoginRoute extends BaseRoute {
    

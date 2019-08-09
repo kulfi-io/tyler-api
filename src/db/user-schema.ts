@@ -1,8 +1,14 @@
-import {Schema, model, Document, Model, Types} from 'mongoose';
-import * as config from "../config/config.json";
-import * as validator from "mongoose-unique-validator";
-import * as crypto from "crypto";
-import * as jwt from "jsonwebtoken";
+import * as config from '../config/config.json';
+import * as crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
+import * as validator from 'mongoose-unique-validator';
+import {
+  Document,
+  model,
+  Model,
+  Schema,
+  Types
+} from 'mongoose';
 
 declare interface IUserSchema extends Document {
   salt: string;
@@ -19,14 +25,14 @@ declare interface IUserSchema extends Document {
 
   matchPasswordCriteria(password: string): RegExpMatchArray | null;
   expiredIn(days: number): number;
-  generateValidationToken(username: string, id:string): string | null;
-  validPassword(password: string, stored:string, salt:string): boolean;
+  generateValidationToken(username: string, id: string): string | null;
+  validPassword(password: string, stored: string, salt: string): boolean;
   generateSalt(): string;
   generatePasswordHash(password: string, salt: string): string;
 
 }
 
-export interface IUserModel extends Model<IUserSchema>{}
+export interface IUserModel extends Model<IUserSchema> { }
 
 export class UserSchema {
   private _model: Model<IUserSchema>
@@ -94,7 +100,7 @@ export class UserSchema {
       { timestamps: true }
     );
 
-    schema.plugin(validator, {message: ':taken'});
+    schema.plugin(validator, { message: ':taken' });
 
     schema.methods.matchPasswordCriteria = (
       password: string
@@ -107,19 +113,19 @@ export class UserSchema {
       return _date.setDate(_date.getDate() + days);
     };
 
-    schema.methods.generateSalt = () : string => {
+    schema.methods.generateSalt = (): string => {
       return crypto.randomBytes(16).toString("hex");
     }
 
-    schema.methods.generatePasswordHash = (password: string, salt: string) : string => {
-      
+    schema.methods.generatePasswordHash = (password: string, salt: string): string => {
+
       const hash = crypto.createHmac('sha512', salt);
       hash.update(password);
       return hash.digest('hex');
-      
+
     }
 
-    schema.methods.generateValidationToken = (username: string, id:string): string | null => {
+    schema.methods.generateValidationToken = (username: string, id: string): string | null => {
       const _expires = schema.methods.expiresIn(config.account.verifyTokenExpiresIn);
 
       try {
@@ -131,14 +137,14 @@ export class UserSchema {
           },
           config.secret
         );
-        
+
         return _token;
       } catch {
         return null;
       }
     };
 
-    schema.methods.validPassword = (password: string, stored: string,  salt: string): boolean  => {
+    schema.methods.validPassword = (password: string, stored: string, salt: string): boolean => {
       if (!password) return false;
       const hash = crypto.createHmac('sha512', salt);
       hash.update(password);
@@ -153,4 +159,3 @@ export class UserSchema {
     return this._model
   }
 }
-

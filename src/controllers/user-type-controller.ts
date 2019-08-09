@@ -27,10 +27,10 @@ export class UserTypeController extends BaseController {
   private mapItem(model: IUserType): UserType {
 
     const _data = new UserType();
-    _data.active = model.active ? this.encryptIV('true') : this.encryptIV('false');
-    _data.description = this.encryptIV(model.description);
-    _data.display = this.encryptIV(model.display);
-    _data.id = this.encryptIV(model.id);
+    _data.active = model.active ? this.encrypt('true') : this.encrypt('false');
+    _data.description = this.encrypt(model.description);
+    _data.display = this.encrypt(model.display);
+    _data.id = this.encrypt(model.id);
 
     return _data;
 

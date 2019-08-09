@@ -6,7 +6,6 @@ import { IValidClientModel } from '../db/valid-client-schema';
 import { Request, Response } from 'express';
 import { VALIDCLIENT } from '../db/db-enums';
 
-
 export class ValidClientController extends BaseController {
   public model: IValidClientModel;
   constructor() {
@@ -24,14 +23,14 @@ export class ValidClientController extends BaseController {
 
   private mapItem(model: IValidClient): ValidClient {
     const _data = new ValidClient();
-    _data.active = model.active ? this.encryptIV('true') : this.encryptIV('false');
-    _data.contactName = this.encryptIV(model.contactName);
-    _data.description = this.encryptIV(model.description);
-    _data.email = this.encryptIV(model.email);
+    _data.active = model.active ? this.encrypt('true') : this.encrypt('false');
+    _data.contactName = this.encrypt(model.contactName);
+    _data.description = this.encrypt(model.description);
+    _data.email = this.encrypt(model.email);
     _data.id = model.id;
-    _data.ipAddress = this.encryptIV(model.ipAddress);
-    _data.name = this.encryptIV(model.name);
-    _data.phoneNumber = this.encryptIV(model.phoneNumber.toString());
+    _data.ipAddress = this.encrypt(model.ipAddress);
+    _data.name = this.encrypt(model.name);
+    _data.phoneNumber = this.encrypt(model.phoneNumber.toString());
 
     return _data;
   }

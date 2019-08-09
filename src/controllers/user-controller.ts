@@ -37,18 +37,18 @@ export class UserController extends BaseController {
     const _type = this.convertToSchemaType<MongooseDocument, IUserType>(model.userType);
 
 
-    _data.active = model.active ? this.encryptIV('true') : this.encryptIV('false');
-    _data.email = this.encryptIV(model.email);
-    _data.firstName = this.encryptIV(model.firstName);
-    _data.id = this.encryptIV(model.id);
-    _data.lastName = this.encryptIV(model.lastName);
-    _data.tokenValidated = model.tokenValidated ? this.encryptIV('true') : this.encryptIV('false');
-    _data.username = this.encryptIV(model.username);
-    _data.validationToken = this.encryptIV(model.validationToken);
-    _data.userType.id = this.encryptIV(_type.id);
-    _data.userType.display = this.encryptIV(_type.display);
-    _data.userType.description = this.encryptIV(_type.description);
-    _data.userType.active = _type.active ? this.encryptIV('true') : this.encryptIV('false');
+    _data.active = model.active ? this.encrypt('true') : this.encrypt('false');
+    _data.email = this.encrypt(model.email);
+    _data.firstName = this.encrypt(model.firstName);
+    _data.id = this.encrypt(model.id);
+    _data.lastName = this.encrypt(model.lastName);
+    _data.tokenValidated = model.tokenValidated ? this.encrypt('true') : this.encrypt('false');
+    _data.username = this.encrypt(model.username);
+    _data.validationToken = this.encrypt(model.validationToken);
+    _data.userType.id = this.encrypt(_type.id);
+    _data.userType.display = this.encrypt(_type.display);
+    _data.userType.description = this.encrypt(_type.description);
+    _data.userType.active = _type.active ? this.encrypt('true') : this.encrypt('false');
 
     return _data;
   }
@@ -134,14 +134,14 @@ export class UserController extends BaseController {
       return res.status(400).send({ message: USER.MISSING_REQUIRED_ITEMS });
     }
 
-    const _pwd = this.decryptIV(req.body.password)
+    const _pwd = this.decrypt(req.body.password)
 
     const _user = new this.userModel({
       id: uuid(),
-      email: this.decryptIV(req.body.email),
-      firstName: this.decryptIV(req.body.firstname),
-      lastName: this.decryptIV(req.body.lastname),
-      username: this.decryptIV(req.body.username),
+      email: this.decrypt(req.body.email),
+      firstName: this.decrypt(req.body.firstname),
+      lastName: this.decrypt(req.body.lastname),
+      username: this.decrypt(req.body.username),
 
     });
 
@@ -157,7 +157,7 @@ export class UserController extends BaseController {
       return res.status(400).send({ message: USER.TOKEN_GENERATION_ERROR });
 
     _user.validationToken = _token;
-    const _type = this.decryptIV(req.body.type);
+    const _type = this.decrypt(req.body.type);
 
     this.typeModel.findOne({ active: true, 'display': _type }, (err: Error, data: IUserType) => {
       if (err) return res.status(400).send({ message: USER.INVALID_TYPE });
@@ -166,23 +166,23 @@ export class UserController extends BaseController {
         _user.userTypeId = data._id;
 
     })
-    .then(() => {
+      .then(() => {
 
-      this.userModel.create(_user, (err: Error, data: IUser) => {
-        if (err) {
-          const _msg = this.correctDbMessage(err.message)
-          return res.status(400).send({ message: _msg });
-        }
+        this.userModel.create(_user, (err: Error, data: IUser) => {
+          if (err) {
+            const _msg = this.correctDbMessage(err.message)
+            return res.status(400).send({ message: _msg });
+          }
 
-        this.verify.email = this.encryptIV(data.email);
-        this.verify.username = this.encryptIV(data.username);
-        this.verify.token = data.validationToken;
-        this.verify.userId = data._id;
+          this.verify.email = this.encrypt(data.email);
+          this.verify.username = this.encrypt(data.username);
+          this.verify.token = data.validationToken;
+          this.verify.userId = data._id;
 
-        return res.status(201).send({ message: this.verify });
+          return res.status(201).send({ message: this.verify });
 
+        });
       });
-    });
   }
 
   update = (req: Request, res: Response) => {

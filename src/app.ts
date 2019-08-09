@@ -1,18 +1,19 @@
 import * as bodyParser from 'body-parser';
+import * as config from './config/config.json';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as helmet from 'helmet';
 import * as logger from 'morgan';
 import { ClientInfoRoute } from './routes/clientInfo-router';
-// import { DurationRoute } from './routes/durationRouter';
 import { IndexRoute } from './routes/indexRouter';
 import { LoginRoute } from './routes/login-router';
-// import { ServiceRoute } from './routes/serviceRoute';
 import { UserRoute } from './routes/user-router';
 import { UserTypeRoute } from './routes/user-type-router';
-import { ValidateRequest } from './middleware/validateRequest';
 import { ValidClientRoute } from './routes/valid-client-router';
-import * as config from './config/config.json';
+// import { DurationRoute } from './routes/durationRouter';
+// import { ServiceRoute } from './routes/serviceRoute';
+// import { ValidateRequest } from './middleware/validateRequest';
+
 export class App {
   private server: express.Application;
 

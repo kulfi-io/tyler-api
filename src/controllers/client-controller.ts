@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import ClientInfo from "../models/clientInfo";
+import ClientInfo from '../models/clientInfo';
+import { Request, Response } from 'express';
 
 export class ClientInfoController {
   constructor() {}

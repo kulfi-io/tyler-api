@@ -1,33 +1,22 @@
 import * as config from '../config/config.json';
 import * as crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
 import { AccountDB } from '../controllers/account-db-controller';
 import { ENV } from '../db/db-enums';
-import { Types } from 'mongoose';
 import { IDecoded } from '../models/model-interfaces.js';
-import * as jwt from 'jsonwebtoken';
+import { Types } from 'mongoose';
 
 export class BaseController {
     protected DB: typeof AccountDB
     protected isProd: boolean;
-    private hashType: string;
-    private algorithim: string;
-    private hash: crypto.Hmac;
-    private key: Buffer;
-    private iv: Buffer;
+    private algorithm: string;
     private secret: string;
-
-
 
     constructor() {
         this.DB = AccountDB;
         this.secret = config.secret;
         this.isProd = process.env.NODE_ENV === ENV.PROD;
-        this.hashType = 'sha512';
-        this.algorithim = 'aes-256-gcm';
-
-        this.hash = crypto.createHmac(this.hashType, config.secret);
-        this.key = this.hash.digest().slice(0, 32);
-        this.iv = Buffer.alloc(16, 0);
+        this.algorithm = 'aes192';
     }
 
     protected correctDbMessage = (message: string): string => {
@@ -48,15 +37,15 @@ export class BaseController {
 
     protected removeLineBreakEmailToken = (token: string): string => {
         if (token) {
-          // remove new line identifier from token
-          // added in rendered email
-          // idedentified is an {=} character
-          return token.replace(/\=/g, '');
+            // remove new line identifier from token
+            // added in rendered email
+            // idedentified is an {=} character
+            return token.replace(/\=/g, '');
         }
         return token;
-      }
+    }
 
-    protected decodeToken = (token: string): IDecoded | undefined  => {
+    protected decodeToken = (token: string): IDecoded | undefined => {
         const _token = this.removeLineBreakEmailToken(token);
         let _decoded;
 
@@ -65,7 +54,7 @@ export class BaseController {
                 jwt.verify(_token, this.secret)
             );
         }
-        catch {}
+        catch { }
 
         return _decoded;
     }
@@ -81,20 +70,46 @@ export class BaseController {
         return _output;
     }
 
-    protected encryptIV = (data: string): string => {
-        const _cipher = crypto.createCipheriv(this.algorithim, this.key, this.iv);
-        let _encrypted = _cipher.update(data, 'utf8', 'hex');
-        let _final = _cipher.final('hex');
+    protected encrypt = (data: string): string => {
 
-        return this.isProd ? _encrypted : data;
+        const cipher = crypto.createCipher(this.algorithm, this.secret);
+
+        let encrypted = '';
+        cipher.on('readable', () => {
+            const data = cipher.read();
+            if (data)
+                encrypted += data.toString('hex');
+        });
+        cipher.on('end', () => {
+            console.log(encrypted);
+        });
+
+        cipher.write(data);
+        cipher.end();
+
+        return this.isProd ? encrypted : data;
     }
 
-    protected decryptIV = (data: string): string => {
-        const _decipher = crypto.createDecipheriv(this.algorithim, this.key, this.iv);
-        let _decrypted = _decipher.update(data, 'hex', 'utf8');
+    protected decrypt = (data: string): string => {
+        const decipher = crypto.createDecipher(this.algorithm, this.secret);
 
-        return this.isProd ? _decrypted : data;
+        let decrypted = '';
+        decipher.on('readable', () => {
+            const data = decipher.read();
+            if (data)
+                decrypted += data.toString('utf8');
+        });
+        decipher.on('end', () => {
+            console.log(decrypted);
+            // Prints: some clear text data
+        });
+
+        decipher.write(data, 'hex');
+        decipher.end();
+
+        return this.isProd ? decrypted : data;
     }
+
 
     protected mongoIdObject(data: string) {
         var _id = Types.ObjectId(data);

@@ -1,5 +1,10 @@
-import {Schema, model, Document, Model } from 'mongoose';
-import * as validator from "mongoose-unique-validator";
+import * as validator from 'mongoose-unique-validator';
+import {
+  Document,
+  model,
+  Model,
+  Schema
+  } from 'mongoose';
 
 declare interface IUserTypeSchema extends Document {
   id: string;

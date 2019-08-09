@@ -1,5 +1,10 @@
-import { BaseRoute } from "./base-router";
-import { Router, Request, Response, NextFunction } from "express";
+import { BaseRoute } from './base-router';
+import {
+    NextFunction,
+    Request,
+    Response,
+    Router
+    } from 'express';
 
 export class IndexRoute extends BaseRoute {
    

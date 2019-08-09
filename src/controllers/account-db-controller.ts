@@ -1,11 +1,15 @@
-import { connect, connection, Connection, ConnectionOptions } from 'mongoose';
-import { ValidClientSchema, IValidClientModel } from '../db/valid-client-schema';
-import { UserTypeSchema, IUserTypeModel } from '../db/user-type-schema';
-import { UserSchema, IUserModel } from '../db/user-schema';
-
 import ConnOptions from '../db/conn-options';
 import { account } from '../config/config.json';
 import { CONN } from '../db/db-enums';
+import {
+    connect,
+    connection,
+    Connection,
+    ConnectionOptions
+    } from 'mongoose';
+import { IUserModel, UserSchema } from '../db/user-schema';
+import { IUserTypeModel, UserTypeSchema } from '../db/user-type-schema';
+import { IValidClientModel, ValidClientSchema } from '../db/valid-client-schema';
 
 declare interface IModels {
     ValidClient: IValidClientModel,
