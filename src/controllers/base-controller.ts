@@ -3,16 +3,19 @@ import * as crypto from 'crypto';
 import { AccountDB } from '../controllers/account-db-controller';
 import { ENV } from '../db/db-enums';
 import { Types } from 'mongoose';
+import { IDecoded } from '../models/model-interfaces.js';
+import * as jwt from 'jsonwebtoken';
 
 export class BaseController {
     protected DB: typeof AccountDB
-    protected secret: string;
     protected isProd: boolean;
     private hashType: string;
     private algorithim: string;
     private hash: crypto.Hmac;
     private key: Buffer;
     private iv: Buffer;
+    private secret: string;
+
 
 
     constructor() {
@@ -41,6 +44,30 @@ export class BaseController {
 
         return message;
 
+    }
+
+    protected removeLineBreakEmailToken = (token: string): string => {
+        if (token) {
+          // remove new line identifier from token
+          // added in rendered email
+          // idedentified is an {=} character
+          return token.replace(/\=/g, '');
+        }
+        return token;
+      }
+
+    protected decodeToken = (token: string): IDecoded | undefined  => {
+        const _token = this.removeLineBreakEmailToken(token);
+        let _decoded;
+
+        try {
+            _decoded = <IDecoded>(
+                jwt.verify(_token, this.secret)
+            );
+        }
+        catch {}
+
+        return _decoded;
     }
 
     private convertToTarget<T>(target: Object): T {

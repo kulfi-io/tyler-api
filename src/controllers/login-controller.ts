@@ -1,6 +1,5 @@
-import * as jwt from 'jsonwebtoken';
 import { BaseController } from './base-controller';
-import { IDecoded, ILogin, IValidate, IUserReset, IResetAccount } from '../models/model-interfaces';
+import { ILogin, IValidate, IUserReset, IResetAccount, IReset, IUser } from '../models/model-interfaces';
 import { IUserModel } from '../db/user-schema';
 import { Request, Response } from 'express';
 import { USER } from '../db/db-enums';
@@ -63,94 +62,101 @@ export class loginController extends BaseController {
         email: this.decryptIV(req.body.email)
       }
 
-      this.model.findOne({email: _resetAccount.email}).exec(
-        (err: Error, data) => {
-
-          if(err) return res.status(400).send({message: err.message});
-          
-          if(data) {
-            data.tokenValidated = false;
-            const _token = data.generateValidationToken(data.username, data._id);
-  
+      this.model.findOne({email: _resetAccount.email})
+      .then((user) => {
+          if(user) {
+            const _token = user.generateValidationToken(user.username, user._id);
+            
             if(!_token)
               res.status(400).send({message: USER.TOKEN_GENERATION_ERROR});
-            else
-              data.validationToken = _token;
-  
-            this.model.findByIdAndUpdate(data._id, {tokenValidated: data.tokenValidated, validationToken: data.validationToken}
-              ,(err: Error, data) => {
-  
-                if(err) return res.status(400).send({message: err.message});
-  
-                if(data) {
-  
-                  const _user: IUserReset = {
-                    username: this.encryptIV(data.username),
-                    email: this.encryptIV(data.email),
-                    firstname: this.encryptIV(data.firstName),
-                    lastname: this.encryptIV(data.lastName),
-                    token: data.validationToken
-                  }; 
-                
-                  return res.status(200).send({message: _user});
-                }
+            
+            this.model.findByIdAndUpdate(user._id
+              , { tokenValidated: false, validationToken: _token }
+              , {new: true})
+            .then((user) => {
+
+              if(user) {
+                const _user: IUserReset = {
+                  username: this.encryptIV(user.username),
+                  email: this.encryptIV(user.email),
+                  firstname: this.encryptIV(user.firstName),
+                  lastname: this.encryptIV(user.lastName),
+                  token: user.validationToken
+              
+                };
+                res.status(200).send({message: _user});
+
+              } else {
+                res.status(400).send({message: USER.USER_UPDATE_FAILURE});
+              }
+            })
+            .catch((err) => {
+              res.status(400).send({message: err.message});
             });
-
           } else {
-            return res.status(401).send({message: USER.INVALID_USER});
+            res.status(400).send({message: USER.INVALID_USER});
           }
-
+      })
+      .catch((err) => {
+        res.status(400).send({message: err.message});
       });
+      
   }
-  // resetPassword = (req: Request, res: Response) => {
-  //   try {
-  //     if (!req.body.username || !req.body.password) {
-  //       return res.status(400).send();
-  //     }
 
-  //     this.model.findOne({ username: req.body.user }).exec(
-  //       (err: Error, data) => {
-  //         if (err) return res.status(400).send({ message: err.message });
+  resetPassword = (req: Request, res: Response) => {
+      
+    if (!req.body.username || !req.body.password || !req.body.email || !req.body.token) {
+        return res.status(400).send({message: USER.MISSING_REQUIRED_ITEMS});
+      }
 
-  //         if (data) {
+      const _data: IReset = {
+        username: this.decryptIV(req.body.username),
+        email: this.decryptIV(req.body.email),
+        password: this.decryptIV(req.body.password),
+        token: this.removeLineBreakEmailToken(req.body.token)
+      }
 
-  //           if (!data.setPassword(req.body.password)) {
-  //             return res
-  //               .status(400)
-  //               .send("either username or password in incorrect!");
-  //           } else {
-  //             Schema.findByIdAndUpdate(
-  //               data._id,
-  //               { salt: data.salt, password_hash: data.password_hash },
-  //               (err: Error) => {
-  //                 if (err)
-  //                   return res.status(400).send({ message: err.message });
-  //                 return res.status(200).send();
-  //               }
-  //             );
-  //           }
-  //         }
+      const _decoded = this.decodeToken(_data.token);
+      
+      if(!_decoded)
+        return res.status(400).send({ message: VERIFY.DECODING_ERROR });
 
-  //         return res.status(417).send();
-  //       }
-  //     );
+        if(_decoded.exp > Date.now() / 1000) {
+          this.model.findOne(
+            {_id: _decoded.id, validationToken: _data.token, email: _data.email})
+          .then((user) => {
 
-  //   } catch (err) {
-  //     return res.status(400).send({ message: err.message });
-  //   }
-  // };
+              if(user) {
 
-  private removeLineBreakEmailToken = (token: string): string => {
-    if (token) {
-      // remove new line identifier from token
-      // added in rendered email
-      // idedentified is an {=} character
-      return token.replace(/\=/g, '');
-    }
+                user.tokenValidated = true;
+                user.salt = user.generateSalt();
+                user.password_hash = user.generatePasswordHash(_data.password, user.salt);
 
-    return token;
+                this.model.findByIdAndUpdate(user._id
+                  ,{salt: user.salt, password_hash: user.password_hash, tokenValidated: user.tokenValidated}
+                  ,{new: true},
+                  (err: Error, data) => {
 
-  }
+                    if(err) return res.status(400).send({message: err.message});
+                    
+                    if(data) {
+                      return res.status(200).send({message: USER.USER_UPDATED});
+                    } else {
+                      return res.status(400).send({message: USER.USER_UPDATE_FAILURE});
+                    }
+
+                });
+
+              } else {
+                return res.status(400).send({message: USER.INVALID_USER_OR_EMAIL_OR_TOKEN});
+              }
+          })
+          .catch((err) => {
+            res.status(400).send({message: err.message});
+          });
+        }
+  };
+
   verifyUser = (req: Request, res: Response) => {
 
     if (!req.body.username || !req.body.password || !req.body.token) {
@@ -163,40 +169,65 @@ export class loginController extends BaseController {
       password: this.decryptIV(req.body.password)
     }
 
-    let _decoded;
-
-    try {
-      _decoded = <IDecoded>(
-        jwt.verify(_validate.token, this.secret)
-      );
-    }
-    catch {
-    }
-
-
-    if (!_decoded)
+    const _decoded = this.decodeToken(_validate.token);
+    
+    if(!_decoded)
       return res.status(400).send({ message: VERIFY.DECODING_ERROR });
 
-    if (_decoded.exp > Date.now() / 1000) {
+    if(_decoded.exp > Date.now() / 1000) {
 
-      this.model.findByIdAndUpdate(
-        _decoded.id,
-        { tokenValidated: true },
-        (err: Error, result) => {
+      this.model.findOneAndUpdate({_id: _decoded.id, validationToken: _validate.token}, {tokenValidated: true}
+        , (err: Error, result) => {
           if (err) return res.status(400).send(err.message);
 
           if (result) {
             if (result.username === _validate.username
               && result.validPassword(_validate.password, result.password_hash, result.salt)) {
-              return res.status(200).send({ message: USER.VALIDATED_TOKEN });
+                return res.status(200).send({ message: USER.VALIDATED_TOKEN });
             }
+          } else {
+            return res.status(400).send({ message: USER.NAME_PASSWORD_TOKEN_MISMATCH });
           }
-          return res.status(400).send({ message: USER.NAME_PASSWORD_TOKEN_MISMATCH });
-        }
-      );
+
+      });
     } else {
       return res.status(401).send({ message: VERIFY.TOKEN_EXPIRED });
     }
+
+    // let _decoded;
+
+    // try {
+    //   _decoded = <IDecoded>(
+    //     jwt.verify(_validate.token, this.secret)
+    //   );
+    // }
+    // catch {
+    // }
+
+
+    // if (!_decoded)
+    //   return res.status(400).send({ message: VERIFY.DECODING_ERROR });
+
+    // if (_decoded.exp > Date.now() / 1000) {
+
+    //   this.model.findByIdAndUpdate(
+    //     _decoded.id,
+    //     { tokenValidated: true },
+    //     (err: Error, result) => {
+    //       if (err) return res.status(400).send(err.message);
+
+    //       if (result) {
+    //         if (result.username === _validate.username
+    //           && result.validPassword(_validate.password, result.password_hash, result.salt)) {
+    //           return res.status(200).send({ message: USER.VALIDATED_TOKEN });
+    //         }
+    //       }
+    //       return res.status(400).send({ message: USER.NAME_PASSWORD_TOKEN_MISMATCH });
+    //     }
+    //   );
+    // } else {
+    //   return res.status(401).send({ message: VERIFY.TOKEN_EXPIRED });
+    // }
   };
 }
 

@@ -26,7 +26,10 @@ export enum USER {
     NAME_PASSWORD_TOKEN_MISMATCH = "Either username password or token is incorrect",
     VALIDATED_TOKEN = "Thank you for validating the token",
     INVALID_USER = "Invalid user",
-    
+    INVALID_USER_OR_EMAIL_OR_TOKEN = "Invalid username or email or token",
+    USER_UPDATE_FAILURE = "Unable to update user information",
+    USER_UPDATED = "User information updated",
+    INVALID_USER_OR_TOKEN = "Invalid user or token",
 }   
 
 export enum USERTYPE {

@@ -14,11 +14,14 @@ export interface IValidClient extends Document {
 
 export interface IDecoded {
   id: string;
+  username: string;
   fdnq: string;
   address: string;
   exp: number;
   iat: number;
 }
+
+
 
 export interface IUserType extends Document {
   id: string;
@@ -39,10 +42,15 @@ export interface IUser extends Document {
   validationToken: string;
 }
 
-export interface ILogin {
-  username: string;
+export interface IUsername {
+  username: string
+}
+
+
+export interface ILogin extends IUsername {
   password: string;
 }
+
 
 export interface IValidate extends ILogin {
   token: string;
@@ -52,10 +60,12 @@ export interface IResetAccount {
   email: string;
 }
 
-export interface IUserReset {
-  username: string;
+export interface IUserReset extends IUsername, IResetAccount {
   firstname: string;
   lastname: string;
   token: string;
-  email: string;
+}
+
+export interface IReset extends IValidate, IResetAccount {
+
 }
