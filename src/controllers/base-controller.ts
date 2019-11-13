@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { AccountDB } from '../controllers/account-db-controller';
 import { ENV } from '../db/db-enums';
-import { IDecoded } from '../models/model-interfaces.js';
+import { IDecoded, ICryptoData } from '../models/model-interfaces.js';
 import { Types } from 'mongoose';
 
 export class BaseController {
@@ -11,12 +11,19 @@ export class BaseController {
     protected isProd: boolean;
     private algorithm: string;
     private secret: string;
+    private algorithmIv: string;
+    private key: Buffer;
+    private iv: Buffer | undefined;
 
     constructor() {
         this.DB = AccountDB;
         this.secret = config.secret;
         this.isProd = process.env.NODE_ENV === ENV.PROD;
         this.algorithm = 'aes192';
+
+        this.algorithmIv = 'aes-256-cbc';
+        const _key = Buffer.alloc(32);
+        this.key = Buffer.concat([Buffer.from(config.secret)], _key.length)
     }
 
     protected correctDbMessage = (message: string): string => {
@@ -70,48 +77,67 @@ export class BaseController {
         return _output;
     }
 
-    protected encrypt = (data: string): string => {
-
-        const cipher = crypto.createCipher(this.algorithm, this.secret);
-
+    protected encrypt = (data: Object): string => {
         let encrypted = '';
-        cipher.on('readable', () => {
-            const data = cipher.read();
-            if (data)
-                encrypted += data.toString('hex');
-        });
-        cipher.on('end', () => {
-            console.log(encrypted);
-        });
+        const cipher = crypto.createCipher(this.algorithm, config.secret);
 
-        cipher.write(data);
-        cipher.end();
+        encrypted = cipher.update(data.toString(), 'utf8', 'hex');
+        encrypted += cipher.final('hex');
 
-        return this.isProd ? encrypted : data;
+        return this.isProd ? encrypted : data.toString();
     }
 
-    protected decrypt = (data: string): string => {
-        const decipher = crypto.createDecipher(this.algorithm, this.secret);
+    protected encryptIv = (data: string): ICryptoData | string => {
+        if(this.isProd) {
+            this.iv = crypto.randomBytes(16);
+
+            let cipher = crypto.createCipheriv(this.algorithmIv.toString(), this.key, this.iv);
+            let encrypted = cipher.update(data, 'utf8', 'hex');
+            encrypted += cipher.final('hex');
+            return {
+                iv: this.iv.toString('hex'), 
+                encryptedData: encrypted
+            };
+    
+        }
+
+        return data;
+    }
+
+    protected decrypt(data: Object): string  {
 
         let decrypted = '';
-        decipher.on('readable', () => {
-            const data = decipher.read();
-            if (data)
-                decrypted += data.toString('utf8');
-        });
-        decipher.on('end', () => {
-            console.log(decrypted);
-            // Prints: some clear text data
-        });
+        const decipher = crypto.createDecipher(this.algorithm, config.secret);
+        decrypted = decipher.update(data.toString(), 'hex', 'utf8');
+        decrypted += decipher.final().toString();
 
-        decipher.write(data, 'hex');
-        decipher.end();
+        return  this.isProd ? decrypted : data.toString();
+    }
 
-        return this.isProd ? decrypted : data;
+    protected decryptIv = (data: string): string => {
+        if(this.isProd) {
+            const _stringifiedData = JSON.stringify(data);
+            const _data = <ICryptoData>JSON.parse(_stringifiedData);
+
+            let iv = Buffer.from(_data.iv, 'hex');
+            let decipher = crypto.createDecipheriv(this.algorithmIv, this.key, iv);
+    
+            let decrypted = decipher.update(_data.encryptedData, 'hex', 'utf8');
+            decrypted += decipher.final('utf8'); 
+            return decrypted;
+    
+        } 
+
+        return data;
     }
 
 
-    protected mongoIdObject(data: string) {
+    protected mongoIdObjectToString(data: Types.ObjectId): string {
+        var _id = <Object>data;
+        return _id.toString();
+    }
+
+    protected mongoIdObject(data: string): Types.ObjectId {
         var _id = Types.ObjectId(data);
         return _id;
     }

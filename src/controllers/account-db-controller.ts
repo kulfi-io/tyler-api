@@ -14,7 +14,7 @@ import { IValidClientModel, ValidClientSchema } from '../db/valid-client-schema'
 declare interface IModels {
     ValidClient: IValidClientModel,
     UserType: IUserTypeModel,
-    User: IUserModel
+    User: IUserModel,
 }
 
 export class AccountDB {

@@ -41,11 +41,24 @@ export enum USERTYPE {
     DESCRIPTION_IS_MISSING_OR_NULL = "Description is missing or null",
 }
 
+export enum EVENT {
+    INVALID_IDENTIFIER = "Invalid event identifier",
+    MISSING_REQUIRED_ITEMS = "Missing required items",
+    DELETED = "Event deleted",
+}
+
 export enum VALIDCLIENT {
     INVALID_IDENTIFIER = "Invalid client identifier",
     MISSING_UPDATABLE_ITEMS = "Missing updatable items",
     MISSING_REQUIRED_ITEMS = "Missing required items",
     DEACTIVATED = "Client deactivated",
     DELETED = "Client deleted",
+}
+
+export enum MEETINGNOTE {
+    INVALID_IDENTIFIER = "Invalid client identifier",
+    MISSING_UPDATABLE_ITEMS = "Missing updatable items",
+    MISSING_REQUIRED_ITEMS = "Missing required items",
+    CREATED = "Meeting note created",
 }
 

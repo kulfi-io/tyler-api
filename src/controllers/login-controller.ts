@@ -4,7 +4,8 @@ import {
   IReset,
   IResetAccount,
   IUserReset,
-  IValidate
+  IValidate,
+  ICookieUser
   } from '../models/model-interfaces';
 import { IUserModel } from '../db/user-schema';
 import { Request, Response } from 'express';
@@ -27,35 +28,43 @@ export class loginController extends BaseController {
     }
 
     const _login: ILogin = {
-      username: this.decrypt(req.body.username),
-      password: this.decrypt(req.body.password)
+      username: this.decryptIv(req.body.username),
+      password: this.decryptIv(req.body.password)
     }
 
-    this.model.findOne({ username: _login.username }).exec(
-      (err: Error, data) => {
+    this.model.findOne({ username: _login.username.toString() }).exec(
+      (err: Error, user) => {
         if (err) return res.status(400).send({ message: err.message });
 
-        if (data) {
+        if (user) {
 
-          if (!data.validPassword(_login.password, data.password_hash, data.salt)) {
+          if (!user.validPassword(_login.password.toString(), user.password_hash, user.salt)) {
             return res
               .status(400)
               .send({ message: USER.NAME_PASSWORD_MISMATCH });
           }
 
-          if (!data.tokenValidated) {
+          if (!user.tokenValidated) {
             return res
               .status(401)
               .send({ message: USER.TOKEN_VALIDATION_NEEDED });
           }
 
-          return res.status(200).send({ message: `Welcome back ${data.firstName}` });
+          const _user: ICookieUser = {
+            id: this.encryptIv(this.mongoIdObjectToString(user._id)),
+            fullname:  this.encryptIv(`${user.firstName} ${user.lastName}`),
+            firstname: this.encryptIv(user.firstName),
+            lastname: this.encryptIv(user.lastName),
+            email: this.encryptIv(user.email)
+          }
+          // const _id = this.encrypt(this.mongoIdObjectToString(user._id));
+          // const _fullname = this.encrypt(`${user.firstName} ${user.lastName}`);
+          return res.status(200).send({ message: `Welcome back ${user.firstName}`, user: _user});
         }
 
-        return res.status(400).send({ message: USER.INVALID_USER });
+        return res.status(400).send({ message: USER.INVALID_USER }); 
       }
     );
-
   };
 
   resetPasswordRequest = (req: Request, res: Response) => {
@@ -64,9 +73,11 @@ export class loginController extends BaseController {
       return res.status(400).send({ message: USER.MISSING_REQUIRED_ITEMS });
     }
 
+
     const _resetAccount: IResetAccount = {
-      email: this.decrypt(req.body.email)
+      email: this.decryptIv(req.body.email)
     }
+
 
     this.model.findOne({ email: _resetAccount.email })
       .then((user) => {
@@ -76,20 +87,22 @@ export class loginController extends BaseController {
           if (!_token)
             res.status(400).send({ message: USER.TOKEN_GENERATION_ERROR });
 
-          this.model.findByIdAndUpdate(user._id
+          this.model.findByIdAndUpdate(this.mongoIdObject(user._id)
             , { tokenValidated: false, validationToken: _token }
-            , { new: true })
+            , {new: true})
             .then((user) => {
 
               if (user) {
+
                 const _user: IUserReset = {
-                  username: this.encrypt(user.username),
-                  email: this.encrypt(user.email),
-                  firstname: this.encrypt(user.firstName),
-                  lastname: this.encrypt(user.lastName),
+                  username: this.encryptIv(user.username),
+                  email: this.encryptIv(user.email),
+                  firstname: this.encryptIv(user.firstName),
+                  lastname: this.encryptIv(user.lastName),
                   token: user.validationToken
 
                 };
+
                 res.status(200).send({ message: _user });
 
               } else {
@@ -116,9 +129,9 @@ export class loginController extends BaseController {
     }
 
     const _data: IReset = {
-      username: this.decrypt(req.body.username),
-      email: this.decrypt(req.body.email),
-      password: this.decrypt(req.body.password),
+      username: this.decryptIv(req.body.username),
+      email: this.decryptIv(req.body.email),
+      password: this.decryptIv(req.body.password),
       token: this.removeLineBreakEmailToken(req.body.token)
     }
 
@@ -128,15 +141,17 @@ export class loginController extends BaseController {
       return res.status(400).send({ message: VERIFY.DECODING_ERROR });
 
     if (_decoded.exp > Date.now() / 1000) {
+
+
       this.model.findOne(
-        { _id: _decoded.id, validationToken: _data.token, email: _data.email })
+        { _id: this.mongoIdObject(_decoded.id), validationToken: _data.token, email: _data.email })
         .then((user) => {
 
           if (user) {
 
             user.tokenValidated = true;
             user.salt = user.generateSalt();
-            user.password_hash = user.generatePasswordHash(_data.password, user.salt);
+            user.password_hash = user.generatePasswordHash(_data.password.toString(), user.salt);
 
             this.model.findByIdAndUpdate(user._id
               , { salt: user.salt, password_hash: user.password_hash, tokenValidated: user.tokenValidated }
@@ -171,8 +186,8 @@ export class loginController extends BaseController {
 
     const _validate: IValidate = {
       token: this.removeLineBreakEmailToken(req.body.token),
-      username: this.decrypt(req.body.username),
-      password: this.decrypt(req.body.password)
+      username: this.decryptIv(req.body.username),
+      password: this.decryptIv(req.body.password)
     }
 
     const _decoded = this.decodeToken(_validate.token);
@@ -188,8 +203,17 @@ export class loginController extends BaseController {
 
           if (result) {
             if (result.username === _validate.username
-              && result.validPassword(_validate.password, result.password_hash, result.salt)) {
-              return res.status(200).send({ message: USER.VALIDATED_TOKEN });
+              && result.validPassword(_validate.password.toString(), result.password_hash, result.salt)) {
+              
+              const _user: ICookieUser = {
+                id: this.encryptIv(this.mongoIdObjectToString(result._id)),
+                fullname:  this.encryptIv(`${result.firstName} ${result.lastName}`),
+                firstname: this.encryptIv(result.firstName),
+                lastname: this.encryptIv(result.lastName),
+                email: this.encryptIv(result.email)
+              } 
+              
+              return res.status(200).send({ message: USER.VALIDATED_TOKEN, user: _user });
             }
           } else {
             return res.status(400).send({ message: USER.NAME_PASSWORD_TOKEN_MISMATCH });

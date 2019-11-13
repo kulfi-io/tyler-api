@@ -36,19 +36,18 @@ export class UserController extends BaseController {
     const _data = new User();
     const _type = this.convertToSchemaType<MongooseDocument, IUserType>(model.userType);
 
-
-    _data.active = model.active ? this.encrypt('true') : this.encrypt('false');
-    _data.email = this.encrypt(model.email);
-    _data.firstName = this.encrypt(model.firstName);
-    _data.id = this.encrypt(model.id);
-    _data.lastName = this.encrypt(model.lastName);
-    _data.tokenValidated = model.tokenValidated ? this.encrypt('true') : this.encrypt('false');
-    _data.username = this.encrypt(model.username);
-    _data.validationToken = this.encrypt(model.validationToken);
-    _data.userType.id = this.encrypt(_type.id);
-    _data.userType.display = this.encrypt(_type.display);
-    _data.userType.description = this.encrypt(_type.description);
-    _data.userType.active = _type.active ? this.encrypt('true') : this.encrypt('false');
+    _data.active = model.active ? this.encryptIv('true') : this.encryptIv('false');
+    _data.email = this.encryptIv(model.email);
+    _data.firstName = this.encryptIv(model.firstName);
+    _data.id = this.encryptIv(model.id);
+    _data.lastName = this.encryptIv(model.lastName);
+    _data.tokenValidated = model.tokenValidated ? this.encryptIv('true') : this.encryptIv('false');
+    _data.username = this.encryptIv(model.username);
+    _data.validationToken = this.encryptIv(model.validationToken);
+    _data.userType.id = this.encryptIv(_type.id.toString());
+    _data.userType.display = this.encryptIv(_type.display.toString());
+    _data.userType.description = this.encryptIv(_type.description.toString());
+    _data.userType.active = _type.active ? this.encryptIv('true') : this.encryptIv('false');
 
     return _data;
   }
@@ -86,14 +85,15 @@ export class UserController extends BaseController {
   };
 
   getOne = (req: Request, res: Response) => {
-    try {
 
-      if (!req.params || !req.params.id) {
+      if (!req.body || !req.body.id) {
         return res.status(400).send();
-      }
+      } 
 
+      const _id = this.decryptIv(req.body.id);
+      
       this.userModel.aggregate([
-        { $match: { '_id': this.mongoIdObject(req.params.id), 'active': true } },
+        { $match: { '_id': this.mongoIdObject(_id), 'active': true } },
         {
           $lookup: {
             from: 'usertypes',
@@ -110,13 +110,8 @@ export class UserController extends BaseController {
         .exec((err: Error, data) => {
           if (err) return res.status(400).send({ message: err.message });
           const _data = this.mapItems(data);
-          return res.status(200).send(_data);
+          return res.status(200).send( _data[0]);
         });
-
-    } catch (err) {
-      return res.status(400).send({ message: err.message });
-    }
-
   };
 
   create = (req: Request, res: Response) => {
@@ -134,14 +129,14 @@ export class UserController extends BaseController {
       return res.status(400).send({ message: USER.MISSING_REQUIRED_ITEMS });
     }
 
-    const _pwd = this.decrypt(req.body.password)
+    const _pwd = this.decryptIv(req.body.password)
 
     const _user = new this.userModel({
       id: uuid(),
-      email: this.decrypt(req.body.email),
-      firstName: this.decrypt(req.body.firstname),
-      lastName: this.decrypt(req.body.lastname),
-      username: this.decrypt(req.body.username),
+      email: this.decryptIv(req.body.email),
+      firstName: this.decryptIv(req.body.firstname),
+      lastName: this.decryptIv(req.body.lastname),
+      username: this.decryptIv(req.body.username),
 
     });
 
@@ -157,7 +152,7 @@ export class UserController extends BaseController {
       return res.status(400).send({ message: USER.TOKEN_GENERATION_ERROR });
 
     _user.validationToken = _token;
-    const _type = this.decrypt(req.body.type);
+    const _type = this.decryptIv(req.body.type);
 
     this.typeModel.findOne({ active: true, 'display': _type }, (err: Error, data: IUserType) => {
       if (err) return res.status(400).send({ message: USER.INVALID_TYPE });
@@ -173,9 +168,8 @@ export class UserController extends BaseController {
             const _msg = this.correctDbMessage(err.message)
             return res.status(400).send({ message: _msg });
           }
-
-          this.verify.email = this.encrypt(data.email);
-          this.verify.username = this.encrypt(data.username);
+          this.verify.email = this.encryptIv(data.email);
+          this.verify.username = this.encryptIv(data.username);
           this.verify.token = data.validationToken;
           this.verify.userId = data._id;
 

@@ -1,8 +1,10 @@
+import { ICryptoData } from "./model-interfaces";
+
 export default class Verify {
-    userId: string;
-    username: string;
-    email: string;
-    token: string
+    userId: string | ICryptoData;
+    username: string | ICryptoData;
+    email: string | ICryptoData;
+    token: string | ICryptoData;
     
     constructor() {
         this.userId = '';

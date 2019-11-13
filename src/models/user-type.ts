@@ -1,8 +1,10 @@
+import { ICryptoData } from "./model-interfaces";
+
 export default class UserType {
-    id: string;
-    display: string;
-    description: string;
-    active: boolean | string;
+    id: string | ICryptoData;
+    display: string | ICryptoData;
+    description: string | ICryptoData;
+    active: boolean | string | ICryptoData;
     
     constructor() {
       this.id = '';

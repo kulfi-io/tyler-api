@@ -1,13 +1,15 @@
+import { ICryptoData } from "./model-interfaces";
+
 export default class ValidClient {
-    id: string;
-    ipAddress: string;
-    name: string;
-    description: string;
-    contactName: string;
-    email: string;
-    phoneNumber: number | string;
-    token: string;
-    active: boolean | string;
+    id: string | ICryptoData;
+    ipAddress: string | ICryptoData;
+    name: string | ICryptoData;
+    description: string | ICryptoData;
+    contactName: string | ICryptoData;
+    email: string | ICryptoData; 
+    phoneNumber: number | string | ICryptoData;
+    token: string | ICryptoData;
+    active: boolean | string | ICryptoData;
 
     constructor() {
         this.id = '';

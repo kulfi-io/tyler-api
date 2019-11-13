@@ -1,15 +1,16 @@
 import UserType from "./user-type";
+import { ICryptoData } from "./model-interfaces";
 
 export default class User {
-  id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+  id: string | ICryptoData;
+  username: string | ICryptoData;
+  email: string | ICryptoData;
+  firstName: string | ICryptoData;
+  lastName: string | ICryptoData;
   userType: UserType;
-  active: boolean | string;
-  tokenValidated: boolean | string;
-  validationToken: string;
+  active: boolean | string | ICryptoData;
+  tokenValidated: boolean | string | ICryptoData;
+  validationToken: string | ICryptoData;
 
   constructor() {
     this.id = '';

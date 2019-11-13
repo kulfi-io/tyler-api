@@ -6,7 +6,7 @@
   "scripts": {
     "build-dev": "webpack  --progress --config build/webpack.dev.config.js",
     "build": "webpack  --progress --config build/webpack.prod.config.js",
-    "start": "node build/dist/app.js",
+    "start": "node app/app.js",
     "stop": "killall tyler-api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,8 +15,9 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
-    "helmet": "^3.18.0",
+    "helmet": "^3.21.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.5.11",
     "mongoose-unique-validator": "^2.0.3",
@@ -33,10 +34,10 @@
     "@types/mongoose": "^5.5.3",
     "@types/mongoose-unique-validator": "^1.0.1",
     "@types/morgan": "^1.7.35",
-    "@types/typescript": "^2.0.0",
     "@types/uuid": "^3.4.4",
     "clean-webpack-plugin": "^1.0.1",
     "ts-loader": "^5.4.5",
+    "typescript": "^3.6.4",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",
     "webpack-merge": "^4.2.1",

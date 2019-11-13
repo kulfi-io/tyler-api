@@ -23,14 +23,14 @@ export class ValidClientController extends BaseController {
 
   private mapItem(model: IValidClient): ValidClient {
     const _data = new ValidClient();
-    _data.active = model.active ? this.encrypt('true') : this.encrypt('false');
-    _data.contactName = this.encrypt(model.contactName);
-    _data.description = this.encrypt(model.description);
-    _data.email = this.encrypt(model.email);
+    _data.active = model.active ? this.encryptIv('true') : this.encryptIv('false');
+    _data.contactName = this.encryptIv(model.contactName.toString());
+    _data.description = this.encryptIv(model.description.toString());
+    _data.email = this.encryptIv(model.email.toString());
     _data.id = model.id;
-    _data.ipAddress = this.encrypt(model.ipAddress);
-    _data.name = this.encrypt(model.name);
-    _data.phoneNumber = this.encrypt(model.phoneNumber.toString());
+    _data.ipAddress = this.encryptIv(model.ipAddress.toString());
+    _data.name = this.encryptIv(model.name.toString());
+    _data.phoneNumber = this.encryptIv(model.phoneNumber.toString());
 
     return _data;
   }
