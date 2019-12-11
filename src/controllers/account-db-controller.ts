@@ -6,15 +6,17 @@ import {
     connection,
     Connection,
     ConnectionOptions
-    } from 'mongoose';
+} from 'mongoose';
 import { IUserModel, UserSchema } from '../db/user-schema';
 import { IUserTypeModel, UserTypeSchema } from '../db/user-type-schema';
 import { IValidClientModel, ValidClientSchema } from '../db/valid-client-schema';
+import { IAccountNoteModel, AccountNoteSchema } from '../db/account-note-schema';
 
 declare interface IModels {
     ValidClient: IValidClientModel,
     UserType: IUserTypeModel,
     User: IUserModel,
+    AccountNote: IAccountNoteModel;
 }
 
 export class AccountDB {
@@ -42,6 +44,7 @@ export class AccountDB {
             ValidClient: new ValidClientSchema().model,
             UserType: new UserTypeSchema().model,
             User: new UserSchema().model,
+            AccountNote: new AccountNoteSchema().model,
             // this is where we initialise all models
         }
 

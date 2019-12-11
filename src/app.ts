@@ -10,6 +10,7 @@ import { LoginRoute } from './routes/login-router';
 import { UserRoute } from './routes/user-router';
 import { UserTypeRoute } from './routes/user-type-router';
 import { ValidClientRoute } from './routes/valid-client-router';
+import { AccountNoteRoute } from './routes/account-note-router';
 // import { DurationRoute } from './routes/durationRouter';
 // import { ServiceRoute } from './routes/serviceRoute';
 // import { ValidateRequest } from './middleware/validateRequest';
@@ -45,6 +46,7 @@ export class App {
     UserRoute.map(router);
     UserTypeRoute.map(router);
     ValidClientRoute.map(router);
+    AccountNoteRoute.map(router);
     // ServiceRoute.map(router);
     // DurationRoute.map(router);
 

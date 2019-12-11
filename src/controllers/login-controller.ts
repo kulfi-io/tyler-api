@@ -6,7 +6,7 @@ import {
   IUserReset,
   IValidate,
   ICookieUser
-  } from '../models/model-interfaces';
+} from '../models/model-interfaces';
 import { IUserModel } from '../db/user-schema';
 import { Request, Response } from 'express';
 import { USER } from '../db/db-enums';
@@ -32,6 +32,7 @@ export class loginController extends BaseController {
       password: this.decryptIv(req.body.password)
     }
 
+
     this.model.findOne({ username: _login.username.toString() }).exec(
       (err: Error, user) => {
         if (err) return res.status(400).send({ message: err.message });
@@ -52,17 +53,15 @@ export class loginController extends BaseController {
 
           const _user: ICookieUser = {
             id: this.encryptIv(this.mongoIdObjectToString(user._id)),
-            fullname:  this.encryptIv(`${user.firstName} ${user.lastName}`),
+            fullname: this.encryptIv(`${user.firstName} ${user.lastName}`),
             firstname: this.encryptIv(user.firstName),
             lastname: this.encryptIv(user.lastName),
             email: this.encryptIv(user.email)
           }
-          // const _id = this.encrypt(this.mongoIdObjectToString(user._id));
-          // const _fullname = this.encrypt(`${user.firstName} ${user.lastName}`);
-          return res.status(200).send({ message: `Welcome back ${user.firstName}`, user: _user});
+          return res.status(200).send({ message: `Welcome back ${user.firstName}`, user: _user });
         }
 
-        return res.status(400).send({ message: USER.INVALID_USER }); 
+        return res.status(400).send({ message: USER.INVALID_USER });
       }
     );
   };
@@ -89,7 +88,7 @@ export class loginController extends BaseController {
 
           this.model.findByIdAndUpdate(this.mongoIdObject(user._id)
             , { tokenValidated: false, validationToken: _token }
-            , {new: true})
+            , { new: true })
             .then((user) => {
 
               if (user) {
@@ -204,15 +203,15 @@ export class loginController extends BaseController {
           if (result) {
             if (result.username === _validate.username
               && result.validPassword(_validate.password.toString(), result.password_hash, result.salt)) {
-              
+
               const _user: ICookieUser = {
                 id: this.encryptIv(this.mongoIdObjectToString(result._id)),
-                fullname:  this.encryptIv(`${result.firstName} ${result.lastName}`),
+                fullname: this.encryptIv(`${result.firstName} ${result.lastName}`),
                 firstname: this.encryptIv(result.firstName),
                 lastname: this.encryptIv(result.lastName),
                 email: this.encryptIv(result.email)
-              } 
-              
+              }
+
               return res.status(200).send({ message: USER.VALIDATED_TOKEN, user: _user });
             }
           } else {

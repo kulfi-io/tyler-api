@@ -83,13 +83,13 @@ export interface IMeetingUser {
   fullname?: string;
 }
 
-export interface IMeetingNote {
-  id: string;
-  title: string;
-  display: string;
-  detail: string;
-  active: string;
-  user: IMeetingUser
+export interface IAccountNote {
+  id: string | ICryptoData;
+  userId: string | ICryptoData;
+  title: string | ICryptoData;
+  note: string | ICryptoData;
+  active: string | ICryptoData;
+  createdAt?: string;
 }
 
 

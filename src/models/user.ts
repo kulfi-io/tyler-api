@@ -1,5 +1,5 @@
 import UserType from "./user-type";
-import { ICryptoData } from "./model-interfaces";
+import { ICryptoData, IAccountNote } from "./model-interfaces";
 
 export default class User {
   id: string | ICryptoData;
@@ -11,6 +11,7 @@ export default class User {
   active: boolean | string | ICryptoData;
   tokenValidated: boolean | string | ICryptoData;
   validationToken: string | ICryptoData;
+  notes: IAccountNote[];
 
   constructor() {
     this.id = '';
@@ -21,6 +22,8 @@ export default class User {
     this.userType = new UserType();
     this.active = false;
     this.tokenValidated = false;
-    this.validationToken = ''
+    this.validationToken = '';
+    this.notes = []
+
   }
 }

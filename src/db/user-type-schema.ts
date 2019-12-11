@@ -4,7 +4,7 @@ import {
   model,
   Model,
   Schema
-  } from 'mongoose';
+} from 'mongoose';
 
 declare interface IUserTypeSchema extends Document {
   id: string;
@@ -13,43 +13,43 @@ declare interface IUserTypeSchema extends Document {
   active: boolean;
 }
 
-export interface IUserTypeModel extends Model<IUserTypeSchema>{}
+export interface IUserTypeModel extends Model<IUserTypeSchema> { }
 
 export class UserTypeSchema {
   private _model: Model<IUserTypeSchema>
 
   constructor() {
-      const schema = new Schema({
-        id: {
-          type: String,
-          index: true,
-          required: [true, "is required"]
-        },
-        display: {
-          type: String,
-          required: [true, "is required"],
-          lowercase: true,
-          unique: true
-        },
-        description: {
-          type: String,
-          required: [true, "is required"]
-        },
-        active: {
-          type: Boolean,
-          retuired: true,
-          required: [true, "is required"]
-        }
+    const schema = new Schema({
+      id: {
+        type: String,
+        index: true,
+        required: [true, "is required"]
       },
+      display: {
+        type: String,
+        required: [true, "is required"],
+        lowercase: true,
+        unique: true
+      },
+      description: {
+        type: String,
+        required: [true, "is required"]
+      },
+      active: {
+        type: Boolean,
+        retuired: true,
+        required: [true, "is required"]
+      }
+    },
       { timestamps: true }
-      );
+    );
 
-      schema.plugin(validator, { message: "is already taken" });
+    schema.plugin(validator, { message: "is already taken" });
 
-      this._model = model<IUserTypeSchema>('UserTypes', schema);
+    this._model = model<IUserTypeSchema>('UserTypes', schema);
   }
 
   public get model(): Model<IUserTypeSchema> {
-      return this._model
+    return this._model
   }
 }

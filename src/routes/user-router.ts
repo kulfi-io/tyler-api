@@ -10,7 +10,9 @@ export class UserRoute extends BaseRoute {
     }
 
     public static map(router: Router) {
-        router.get('/v1/admin/user', controller.getAll);
+        router.get('/v1/admin/users', controller.getAll);
+        router.get('/v1/admin/search/:criteria', controller.search);
+        router.post('/v1/admin/user-list', controller.userList);
         router.post('/v1/user', controller.getOne);
         router.post('/v1/register', controller.create);
         router.put('/v1/register', controller.update);

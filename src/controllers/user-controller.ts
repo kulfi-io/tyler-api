@@ -2,7 +2,7 @@ import * as uuid from 'uuid';
 import User from '../models/user';
 import Verify from '../models/verify';
 import { BaseController } from './base-controller';
-import { IUser, IUserType } from '../models/model-interfaces';
+import { IUser, IUserType, IAccountNote, ICryptoData } from '../models/model-interfaces';
 import { IUserModel } from '../db/user-schema';
 import { IUserTypeModel } from '../db/user-type-schema';
 import { MongooseDocument, Types } from 'mongoose';
@@ -22,7 +22,7 @@ export class UserController extends BaseController {
 
   }
 
-  private mapItems(model: IUser[]): User[] {
+  private mapItems(model: User[]): User[] {
     let _data = [];
 
     for (let i = 0; i < model.length; i++) {
@@ -32,22 +32,35 @@ export class UserController extends BaseController {
     return _data;
   }
 
-  private mapItem(model: IUser): User {
+  private mapItem(model: User): User {
     const _data = new User();
     const _type = this.convertToSchemaType<MongooseDocument, IUserType>(model.userType);
 
     _data.active = model.active ? this.encryptIv('true') : this.encryptIv('false');
-    _data.email = this.encryptIv(model.email);
-    _data.firstName = this.encryptIv(model.firstName);
-    _data.id = this.encryptIv(model.id);
-    _data.lastName = this.encryptIv(model.lastName);
+    _data.email = this.encryptIv(model.email.toString());
+    _data.firstName = this.encryptIv(model.firstName.toString());
+    _data.id = this.encryptIv(model.id.toString());
+    _data.lastName = this.encryptIv(model.lastName.toString());
     _data.tokenValidated = model.tokenValidated ? this.encryptIv('true') : this.encryptIv('false');
-    _data.username = this.encryptIv(model.username);
-    _data.validationToken = this.encryptIv(model.validationToken);
+    _data.username = this.encryptIv(model.username.toString());
+    _data.validationToken = this.encryptIv(model.validationToken.toString());
     _data.userType.id = this.encryptIv(_type.id.toString());
     _data.userType.display = this.encryptIv(_type.display.toString());
     _data.userType.description = this.encryptIv(_type.description.toString());
     _data.userType.active = _type.active ? this.encryptIv('true') : this.encryptIv('false');
+
+    model.notes.forEach((note) => {
+      const _note: IAccountNote = {
+        id: this.encryptIv(note.id.toString()),
+        active: this.encryptIv(note.active.toString()),
+        note: this.encryptIv(note.note.toString()),
+        title: this.encryptIv(note.title.toString()),
+        userId: this.encryptIv(note.userId.toString()),
+        createdAt: note.createdAt
+      }
+
+      _data.notes.push(_note);
+    })
 
     return _data;
   }
@@ -86,32 +99,145 @@ export class UserController extends BaseController {
 
   getOne = (req: Request, res: Response) => {
 
-      if (!req.body || !req.body.id) {
-        return res.status(400).send();
-      } 
+    if (!req.body || !req.body.id) {
+      return res.status(400).send({ message: USER.INVALID_IDENTIFIER });
+    }
 
-      const _id = this.decryptIv(req.body.id);
-      
-      this.userModel.aggregate([
-        { $match: { '_id': this.mongoIdObject(_id), 'active': true } },
-        {
-          $lookup: {
-            from: 'usertypes',
-            localField: 'userTypeId',
-            foreignField: '_id',
-            as: 'userType'
-          }
-        },
-        { $limit: 1 },
-        {
-          $unwind: '$userType'
+    const _id = this.decryptIv(req.body.id);
+    const _query = {
+      "_id": this.mongoIdObject(_id),
+      "active": true
+    }
+
+    this.userModel.aggregate([
+      { $match: _query },
+      {
+        $lookup: {
+          from: 'accountnotes',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'notes'
         }
-      ])
-        .exec((err: Error, data) => {
-          if (err) return res.status(400).send({ message: err.message });
-          const _data = this.mapItems(data);
-          return res.status(200).send( _data[0]);
-        });
+      },
+      {
+        $lookup: {
+          from: 'usertypes',
+          localField: 'userTypeId',
+          foreignField: '_id',
+          as: 'userType'
+        }
+      },
+      { $limit: 1 },
+      {
+        $unwind: '$userType'
+      }
+
+    ])
+      .exec((err: Error, data: User[]) => {
+        if (err) {
+          return res.status(400).send({ message: err.message });
+        }
+
+        const _data = this.mapItems(data);
+        return res.status(200).send(_data);
+      });
+  };
+
+  userList = (req: Request, res: Response) => {
+
+    if (!req.body || !req.body.emails) {
+      return res.status(400).send({ message: USER.INVALID_SEARCH_CRITERIA });
+    }
+
+    const _emails: string[] = [];
+
+    req.body.emails.forEach((item: string) => {
+      _emails.push(this.decryptIv(item));
+    });
+
+    const _query = {
+      email: {
+        $in: _emails
+      }
+    }
+
+    this.userModel.aggregate([
+      { $match: _query },
+      {
+        $lookup: {
+          from: 'accountnotes',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'notes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'usertypes',
+          localField: 'userTypeId',
+          foreignField: '_id',
+          as: 'userType'
+        }
+      },
+      {
+        $unwind: '$userType'
+      }
+    ])
+      .exec((err: Error, data) => {
+        if (err) return res.status(400).send({ message: err.message });
+        const _data = this.mapItems(data);
+        return res.status(200).send(_data);
+      });
+
+
+  }
+
+  search = (req: Request, res: Response) => {
+
+    if (!req.params || !req.params.criteria) {
+      return res.status(400).send({ message: USER.INVALID_SEARCH_CRITERIA });
+    }
+
+    const _criteria = this.decrypt(req.params.criteria);
+
+    const _query = {
+      $or: [
+        { username: new RegExp(`.*${_criteria}.*`) },
+        { email: new RegExp(`.*${_criteria}.*`) },
+        { firstName: new RegExp(`.*${_criteria}.*`) },
+        { lastName: new RegExp(`.*${_criteria}.*`) },
+      ],
+      "active": true
+    }
+
+    this.userModel.aggregate([
+      { $match: _query },
+      {
+        $lookup: {
+          from: 'accountnotes',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'notes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'usertypes',
+          localField: 'userTypeId',
+          foreignField: '_id',
+          as: 'userType'
+        }
+      },
+      { $limit: 50 },
+      {
+        $unwind: '$userType'
+      }
+    ])
+      .exec((err: Error, data) => {
+        if (err) return res.status(400).send({ message: err.message });
+        const _data = this.mapItems(data);
+        return res.status(200).send(_data);
+      });
   };
 
   create = (req: Request, res: Response) => {

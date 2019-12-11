@@ -3,7 +3,7 @@ import { BaseRoute } from './base-router';
 import { Router } from 'express';
 
 export class LoginRoute extends BaseRoute {
-   
+
     constructor() {
         super();
     }
